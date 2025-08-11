@@ -19,7 +19,7 @@ export default function OrganizationSignup() {
       <div className="mx-auto w-full max-w-2xl">
         <form action="" method="POST" className="grid grid-cols-1 gap-8">
           <div className="grid gap-2">
-            <Logo className="h-6 text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
+            <Logo className=" text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
             <Heading>Create Your Organization</Heading>
             <Text>Start your 30-day free trial. No credit card required.</Text>
           </div>

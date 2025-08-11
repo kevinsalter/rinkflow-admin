@@ -17,7 +17,7 @@ export default function Login() {
       <div className="mx-auto w-full max-w-sm">
         <form action="" method="POST" className="grid grid-cols-1 gap-8">
           <div className="grid gap-2">
-            <Logo className="h-6 text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
+            <Logo className=" text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
             <Heading>Sign in to your account</Heading>
           </div>
       <Field>

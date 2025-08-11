@@ -27,7 +27,7 @@ export default function AcceptInvitation() {
       <div className="mx-auto w-full max-w-md">
         <div className="grid grid-cols-1 gap-8">
           <div className="grid gap-2 text-center">
-            <Logo className="h-6 mx-auto text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
+            <Logo className=" mx-auto text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
             <Heading>You're Invited!</Heading>
             <Text>
               <Strong>{invitationData.inviterName}</Strong> has invited you to join
