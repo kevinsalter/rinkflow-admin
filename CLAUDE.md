@@ -30,6 +30,7 @@ Package manager: **Bun** (bun.lock present)
 - **Tailwind CSS v4.1.11** with custom theme
 - **Headless UI 2.2.7** for accessible components
 - **Framer Motion 12.23.12** for animations
+- **Tremor 3.18.7** for data visualization and charts
 
 ### Project Structure
 ```
@@ -78,6 +79,13 @@ src/
 **Form Handling**: Use the existing form components (Input, Select, Button, etc.) for consistency.
 
 **Testing**: No test framework currently configured. Testing setup would require adding Jest/Vitest for unit tests or Playwright/Cypress for E2E.
+
+**Data Visualization**: Use Tremor components for charts and graphs. Available components include:
+- `AreaChart`, `BarChart`, `LineChart` for trends
+- `DonutChart`, `PieChart` for distributions
+- `Card`, `Metric`, `Badge` for KPIs
+- `ProgressBar`, `Tracker` for progress indicators
+- All Tremor components work seamlessly with Tailwind CSS
 
 ## Documentation Workflow
 

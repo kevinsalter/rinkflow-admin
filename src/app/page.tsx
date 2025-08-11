@@ -26,14 +26,14 @@ export default function LandingPage() {
             </Link>
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/pricing" className="text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white hidden lg:inline-block">
-              Pricing
-            </Link>
             <Link href="/features" className="text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white hidden lg:inline-block">
               Features
             </Link>
             <Link href="/about" className="text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white hidden lg:inline-block">
               About
+            </Link>
+            <Link href="/contact" className="text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white hidden lg:inline-block">
+              Contact
             </Link>
             <Button outline href="/login" className="hidden lg:inline-flex">
               Sign in
@@ -58,10 +58,10 @@ export default function LandingPage() {
           </Text>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button href="/organizations/new" className="px-8 py-3">
-              Start Free Trial
+              Get Started
             </Button>
-            <Button href="/pricing" outline className="px-8 py-3">
-              View Pricing
+            <Button href="/contact" outline className="px-8 py-3">
+              Contact Sales
             </Button>
           </div>
         </section>
@@ -130,14 +130,14 @@ export default function LandingPage() {
           </div>
           <nav className="flex flex-1 flex-col p-6">
             <div className="flex flex-col gap-4">
-              <Link href="/pricing" className="text-base font-medium text-zinc-900 dark:text-white py-2">
-                Pricing
-              </Link>
               <Link href="/features" className="text-base font-medium text-zinc-900 dark:text-white py-2">
                 Features
               </Link>
               <Link href="/about" className="text-base font-medium text-zinc-900 dark:text-white py-2">
                 About
+              </Link>
+              <Link href="/contact" className="text-base font-medium text-zinc-900 dark:text-white py-2">
+                Contact
               </Link>
             </div>
             <div className="mt-auto flex flex-col gap-3 pt-6 border-t border-zinc-200 dark:border-zinc-800">
