@@ -3,7 +3,7 @@ import { Text } from '@/components/text'
 
 export default function SettingsPage() {
   return (
-    <div className="max-lg:hidden">
+    <div>
       <div className="flex items-center justify-between">
         <Heading>Settings</Heading>
       </div>

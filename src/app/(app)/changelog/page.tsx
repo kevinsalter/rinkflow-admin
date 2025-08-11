@@ -34,7 +34,7 @@ export default function ChangelogPage() {
   ]
 
   return (
-    <div className="max-lg:hidden">
+    <div>
       <div className="flex items-center justify-between mb-8">
         <Heading>Changelog</Heading>
       </div>

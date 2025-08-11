@@ -3,7 +3,7 @@ import { Text } from '@/components/text'
 
 export default function BillingPage() {
   return (
-    <div className="max-lg:hidden">
+    <div>
       <div className="flex items-center justify-between">
         <Heading>Billing</Heading>
       </div>
