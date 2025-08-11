@@ -8,7 +8,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useState, useEffect } from 'react'
 
 export default function Dashboard() {
-  const [orders, setOrders] = useState<any[]>([])
+  const [orders, setOrders] = useState<Array<{
+    id: string
+    date: string
+    customer: { name: string }
+    event: { name: string; thumbUrl: string }
+    amount: { usd: string }
+    url: string
+  }>>([])
   
   useEffect(() => {
     // Simulate fetching orders data
