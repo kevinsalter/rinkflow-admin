@@ -10,12 +10,16 @@ export const metadata: Metadata = {
   title: 'Forgot password',
 }
 
-export default function Login() {
+export default function ForgotPassword() {
   return (
-    <form action="" method="POST" className="grid w-full max-w-sm grid-cols-1 gap-8">
-      <Logo className="h-6 text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
-      <Heading>Reset your password</Heading>
-      <Text>Enter your email and we’ll send you a link to reset your password.</Text>
+    <div className="flex min-h-full flex-col justify-center">
+      <div className="mx-auto w-full max-w-sm">
+        <form action="" method="POST" className="grid grid-cols-1 gap-8">
+          <div className="grid gap-2">
+            <Logo className="h-6 text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
+            <Heading>Reset your password</Heading>
+            <Text>Enter your email and we'll send you a link to reset your password.</Text>
+          </div>
       <Field>
         <Label>Email</Label>
         <Input type="email" name="email" />
@@ -23,12 +27,14 @@ export default function Login() {
       <Button type="submit" className="w-full">
         Reset password
       </Button>
-      <Text>
-        Don’t have an account?{' '}
-        <TextLink href="/register">
-          <Strong>Sign up</Strong>
-        </TextLink>
-      </Text>
-    </form>
+          <Text>
+            Don't have an account?{' '}
+            <TextLink href="/register">
+              <Strong>Sign up</Strong>
+            </TextLink>
+          </Text>
+        </form>
+      </div>
+    </div>
   )
 }

@@ -13,9 +13,13 @@ export const metadata: Metadata = {
 
 export default function Login() {
   return (
-    <form action="" method="POST" className="grid w-full max-w-sm grid-cols-1 gap-8">
-      <Logo className="h-6 text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
-      <Heading>Sign in to your account</Heading>
+    <div className="flex min-h-full flex-col justify-center">
+      <div className="mx-auto w-full max-w-sm">
+        <form action="" method="POST" className="grid grid-cols-1 gap-8">
+          <div className="grid gap-2">
+            <Logo className="h-6 text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
+            <Heading>Sign in to your account</Heading>
+          </div>
       <Field>
         <Label>Email</Label>
         <Input type="email" name="email" />
@@ -38,12 +42,14 @@ export default function Login() {
       <Button type="submit" className="w-full">
         Login
       </Button>
-      <Text>
-        Don’t have an account?{' '}
-        <TextLink href="/register">
-          <Strong>Sign up</Strong>
-        </TextLink>
-      </Text>
-    </form>
+          <Text>
+            Don't have an account?{' '}
+            <TextLink href="/register">
+              <Strong>Sign up</Strong>
+            </TextLink>
+          </Text>
+        </form>
+      </div>
+    </div>
   )
 }

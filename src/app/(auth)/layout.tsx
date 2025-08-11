@@ -1,5 +1,5 @@
-import { AuthLayout } from '@/components/auth-layout'
+import { StackedLayout } from '@/components/stacked-layout'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  return <AuthLayout>{children}</AuthLayout>
+  return <StackedLayout>{children}</StackedLayout>
 }

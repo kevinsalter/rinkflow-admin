@@ -126,9 +126,9 @@ export function ApplicationLayout({
 
           <SidebarBody>
             <SidebarSection>
-              <SidebarItem href="/" current={pathname === '/'}>
+              <SidebarItem href="/dashboard" current={pathname === '/dashboard'}>
                 <HomeIcon />
-                <SidebarLabel>Home</SidebarLabel>
+                <SidebarLabel>Dashboard</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/events" current={pathname.startsWith('/events')}>
                 <Square2StackIcon />

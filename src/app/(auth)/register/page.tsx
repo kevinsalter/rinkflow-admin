@@ -12,11 +12,15 @@ export const metadata: Metadata = {
   title: 'Register',
 }
 
-export default function Login() {
+export default function Register() {
   return (
-    <form action="" method="POST" className="grid w-full max-w-sm grid-cols-1 gap-8">
-      <Logo className="h-6 text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
-      <Heading>Create your account</Heading>
+    <div className="flex min-h-full flex-col justify-center">
+      <div className="mx-auto w-full max-w-sm">
+        <form action="" method="POST" className="grid grid-cols-1 gap-8">
+          <div className="grid gap-2">
+            <Logo className="h-6 text-zinc-950 dark:text-white forced-colors:text-[CanvasText]" />
+            <Heading>Create your account</Heading>
+          </div>
       <Field>
         <Label>Email</Label>
         <Input type="email" name="email" />
@@ -44,12 +48,14 @@ export default function Login() {
       <Button type="submit" className="w-full">
         Create account
       </Button>
-      <Text>
-        Already have an account?{' '}
-        <TextLink href="/login">
-          <Strong>Sign in</Strong>
-        </TextLink>
-      </Text>
-    </form>
+          <Text>
+            Already have an account?{' '}
+            <TextLink href="/login">
+              <Strong>Sign in</Strong>
+            </TextLink>
+          </Text>
+        </form>
+      </div>
+    </div>
   )
 }
