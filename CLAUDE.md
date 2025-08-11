@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-RinkFlow Admin is a Next.js 15.4.6 admin dashboard application for event management and ticketing, built with TypeScript, React 19, and Tailwind CSS v4. The UI is based on the Catalyst theme from Tailwind UI.
+Rinkflow Admin is a Next.js 15.4.6 admin dashboard application for event management and ticketing, built with TypeScript, React 19, and Tailwind CSS v4. The UI is based on the Catalyst theme from Tailwind UI.
 
 ## Essential Commands
 

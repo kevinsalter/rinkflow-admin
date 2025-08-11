@@ -19,9 +19,14 @@ export function StackedLayout({
       {/* Simple Navigation matching home page */}
       <header className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
         <nav className="mx-auto max-w-7xl flex items-center justify-between">
-          <Link href="/" aria-label="Home">
-            <Logo className="h-6 text-zinc-950 dark:text-white" />
-          </Link>
+          <div className="flex items-center gap-4">
+            <Button plain aria-label="Open navigation" onClick={() => setShowMobileMenu(true)} className="lg:hidden">
+              <Bars2Icon />
+            </Button>
+            <Link href="/" aria-label="Home">
+              <Logo className="h-6 text-zinc-950 dark:text-white" />
+            </Link>
+          </div>
           <div className="flex items-center gap-6">
             <Link href="/pricing" className="text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white hidden lg:inline-block">
               Pricing
@@ -32,9 +37,6 @@ export function StackedLayout({
             <Link href="/about" className="text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white hidden lg:inline-block">
               About
             </Link>
-            <Button plain aria-label="Open navigation" onClick={() => setShowMobileMenu(true)} className="lg:hidden">
-              <Bars2Icon />
-            </Button>
             <Button outline href="/login" className="hidden lg:inline-flex">
               Sign in
             </Button>

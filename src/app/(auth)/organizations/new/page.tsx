@@ -9,8 +9,8 @@ import { Textarea } from '@/components/textarea'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Create Organization - RinkFlow',
-  description: 'Set up your hockey organization on RinkFlow.',
+  title: 'Create Organization - Rinkflow',
+  description: 'Set up your hockey organization on Rinkflow.',
 }
 
 export default function OrganizationSignup() {

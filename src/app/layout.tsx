@@ -3,10 +3,10 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: {
-    template: '%s - Catalyst',
-    default: 'Catalyst',
+    template: '%s - Rinkflow',
+    default: 'Rinkflow - Streamline Your Hockey Organization',
   },
-  description: '',
+  description: 'The complete platform for managing hockey teams, schedules, and communications.',
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

@@ -4,8 +4,8 @@ import { Button } from '@/components/button'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'About - RinkFlow',
-  description: 'Learn about RinkFlow and our mission to simplify hockey organization management.',
+  title: 'About - Rinkflow',
+  description: 'Learn about Rinkflow and our mission to simplify hockey organization management.',
 }
 
 export default function AboutPage() {
@@ -13,12 +13,12 @@ export default function AboutPage() {
     <div className="mx-auto max-w-4xl">
       <section className="py-16 lg:py-24">
         <Heading className="text-4xl lg:text-5xl mb-8 text-center">
-          About RinkFlow
+          About Rinkflow
         </Heading>
         
         <div className="prose prose-zinc dark:prose-invert max-w-none space-y-6">
           <Text className="text-lg leading-relaxed">
-            RinkFlow was founded by hockey enthusiasts who experienced firsthand the challenges 
+            Rinkflow was founded by hockey enthusiasts who experienced firsthand the challenges 
             of managing youth hockey organizations. We saw the need for a comprehensive, 
             user-friendly platform that could handle everything from team rosters to tournament 
             management.

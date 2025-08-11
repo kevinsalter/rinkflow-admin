@@ -4,7 +4,7 @@ import { Button } from '@/components/button'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Features - RinkFlow',
+  title: 'Features - Rinkflow',
   description: 'Comprehensive features for managing your hockey organization.',
 }
 

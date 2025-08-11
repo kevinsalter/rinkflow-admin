@@ -8,8 +8,8 @@ import { Badge } from '@/components/badge'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Accept Invitation - RinkFlow',
-  description: 'Accept your invitation to join a hockey organization on RinkFlow.',
+  title: 'Accept Invitation - Rinkflow',
+  description: 'Accept your invitation to join a hockey organization on Rinkflow.',
 }
 
 export default function AcceptInvitation() {

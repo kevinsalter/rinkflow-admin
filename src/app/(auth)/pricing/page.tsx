@@ -6,7 +6,7 @@ import clsx from 'clsx'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Pricing - RinkFlow',
+  title: 'Pricing - Rinkflow',
   description: 'Simple, transparent pricing for hockey organizations of all sizes.',
 }
 
