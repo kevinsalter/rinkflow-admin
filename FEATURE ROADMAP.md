@@ -94,6 +94,12 @@ All routes require admin role verification via middleware.
 - Payment method display (last 4 digits)
 - Contact support for plan changes (pre-negotiated)
 
+#### Subscription Status Notifications
+- Display prominent banner when subscription is expiring within 14 days
+- Show urgent alert when subscription has expired
+- Include clear call-to-action to update payment method or contact support
+- Notification should be visible on all admin pages until resolved
+
 #### Invoice Management
 - Invoice history table
 - Download individual invoices (PDF)
