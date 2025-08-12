@@ -41,22 +41,34 @@ All routes require admin role verification via middleware.
 
 ## Core Features
 
-### Organization Signup Flow
+### Organization Setup Process (MVP)
 
-#### Requirements
-- Multi-step wizard interface using Catalyst components
-- Organization information collection
-- Admin account creation or existing account linking
-- Subscription tier selection (plans presented during signup)
-- Stripe payment method collection
-- Automatic admin role assignment to signup user
-- Success page with instructions to share app with coaches
+#### Manual Organization Creation
+- Organizations are created manually in the database after sales negotiation
+- Admin creates organization record with agreed plan and seat limits
+- Admin user is assigned to the organization with their email
+- Password reset email is sent to admin for initial login
+- Organization starts in "pending_payment" status until billing is configured
+
+#### Admin Initial Access Flow
+1. After manual org creation, admin receives password reset email
+2. Admin clicks link to set their password
+3. Admin logs into admin.rinkflow.com
+4. Dashboard prompts to complete billing setup if payment pending
+5. Admin navigates to billing page to add payment method
+
+#### Billing Self-Service Setup
+- Billing page shows current plan details (manually configured)
+- Stripe Elements embedded for secure payment method collection
+- Organization status updates to "active" after successful payment setup
+- No plan selection needed - plan is pre-configured during manual creation
+- Admin can update payment method but not change plan (contact support for plan changes)
 
 #### UI Components Needed
-- Step progress indicator
-- Form validation with inline errors
-- Pricing cards with feature comparison
-- Stripe Elements integration
+- Billing setup prompt on dashboard when payment pending
+- Stripe Elements integration for payment method
+- Payment method management interface
+- Success confirmation after billing setup
 - Loading states during payment processing
 
 ### Coach Management System
@@ -321,7 +333,10 @@ None for MVP. Organizations will communicate app download instructions directly 
 - Protected route setup for admin pages (/dashboard, etc.)
 
 ### Phase 2: Core Features (Week 2)
-- Dashboard with key metrics
+- Manual organization creation process in database
+- Admin user creation with password reset email flow
+- Dashboard with key metrics and billing setup prompt
+- Billing page with Stripe Elements integration (payment method only)
 - Coach management (add/remove by email)
 - Member management table with status
 - Settings page with logo upload
