@@ -49,6 +49,8 @@ All routes require admin role verification via middleware.
 - Admin user is assigned to the organization with their email
 - Password reset email is sent to admin for initial login
 - Organization starts in "pending_payment" status until billing is configured
+- Subscription status is binary: active or inactive (no self-service plan changes)
+- Organizations are soft-deleted only - data retained indefinitely for recovery
 
 #### Admin Initial Access Flow
 1. After manual org creation, admin receives password reset email
@@ -73,20 +75,20 @@ All routes require admin role verification via middleware.
 
 ### Coach Management System
 
-### Coach Management System
-
 #### Add Coaches Interface
 - Single and bulk email input (textarea for multiple)
 - CSV upload for bulk addition
 - Seat availability display with clear limits
 - Immediate addition to organization (no invitations)
 - Success message with app download instructions to share
+- Coaches can only belong to one organization at a time
+- Alert shown if coach has individual subscription (needs cancellation)
 
 #### Member Management Table
 - Paginated list of all organization members
 - Search and filter capabilities
 - Sort by name, role (admin/coach), join date, last active
-- Bulk actions (remove multiple, promote to admin)
+- Bulk actions (remove multiple coaches)
 - Individual member actions dropdown
 - Export member list functionality
 - Status indicator (account created vs pending)
@@ -96,6 +98,7 @@ All routes require admin role verification via middleware.
 - Clear messaging: "Tell coaches to download Rinkflow from App Store"
 - Show which coaches have activated accounts
 - Display which emails are waiting for account creation
+- Individual subscription warning: "This coach has a personal subscription that needs to be cancelled"
 
 ### Billing Dashboard
 
@@ -124,28 +127,23 @@ All routes require admin role verification via middleware.
 
 ### Usage Statistics Dashboard
 
+#### Privacy Notice
+- **Admins can only view statistics and metrics, not coach content**
+- Drill and practice plan contents remain private to coaches
+- Only aggregated data and counts are visible to administrators
+
 #### Organization Metrics
-- Total active coaches (logged in last 30 days)
-- Total drills created (all-time and this month)
-- Total practice plans created (all-time and this month)
+- Total active coaches (current count)
+- Total drills created (count only)
+- Total practice plans created (count only)
 - Average drills per coach
 - Adoption rate (% of coaches who've created content)
 
-#### Usage Trends
-- Coach activity over time (line chart)
-- Content creation over time (drills/plans)
-- Weekly active coaches
-- Month-over-month growth
-
 #### Coach Activity Table
-- Each coach's metrics (drills created, plans created, last active)
+- Each coach's metrics (drill count, plan count, last active date only)
 - Sort by any column
 - Identify power users and inactive coaches
-- Export to CSV for board reports
-
-#### Time Controls
-- Date range selector (last 7/30/90 days/all time)
-- Compare to previous period option
+- Export to CSV for board reports (statistics only, no content)
 
 ### Organization Settings
 
