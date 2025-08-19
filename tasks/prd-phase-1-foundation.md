@@ -1,29 +1,37 @@
-# Product Requirements Document: Phase 1 - Foundation
+# Product Requirements Document: Phase 1 - Complete Admin Portal MVP
 
 ## Introduction/Overview
 
-Phase 1 establishes the foundational infrastructure for the Rinkflow Admin Portal, focusing specifically on authentication and access control. This phase transforms the existing Next.js codebase to integrate with Supabase authentication, implements a login page at the root route, and sets up admin role verification middleware. The goal is to create a secure, authenticated environment that allows only organization administrators to access the portal while non-admin users receive a clear error message.
+Phase 1 delivers a fully functional admin portal for the Rinkflow platform, enabling organization administrators to manage coaches, handle billing, view analytics, and configure settings. This phase transforms the existing Next.js Catalyst template into a production-ready admin dashboard integrated with Supabase authentication, Stripe billing, and comprehensive organization management features. The goal is to provide administrators with all essential tools to manage their organizations effectively from day one.
 
 ## Goals
 
-1. Replace all Catalyst demo content with Rinkflow branding and messaging
-2. Integrate Supabase authentication with username/password and Google OAuth
-3. Implement login page at root route (/) that redirects to /dashboard when authenticated
-4. Set up admin role verification middleware using temporary email whitelist
-5. Configure protected routes requiring admin authentication
-6. Set up environment configuration for both local (Docker) and production deployment
+1. Deliver a complete admin portal with all core functionality
+2. Integrate Supabase authentication with email/password and Google OAuth
+3. Implement comprehensive coach management with CSV import/export
+4. Integrate Stripe for subscription and billing management
+5. Provide analytics and usage insights for organizations
+6. Enable organization settings and configuration management
+7. Establish scalable architecture with React Query for data operations
+8. Deploy production-ready solution with proper security and performance
 
 ## User Stories
 
-1. **As an organization admin**, I want to log in using my existing Rinkflow credentials so that I can access the admin portal without creating a new account.
+1. **As an organization admin**, I want to log in using email/password or Google OAuth so that I can access the admin portal securely.
 
-2. **As an organization admin**, I want to successfully access the protected admin area after logging in so that I know the authentication is working.
+2. **As an organization admin**, I want to view a dashboard with key metrics so that I can quickly understand my organization's status.
 
-3. **As a regular coach**, I should see a clear error message when trying to log in so that I understand this portal is for administrators only.
+3. **As an organization admin**, I want to add and remove coaches from my organization so that I can manage team access.
 
-4. **As an organization admin**, I want the portal to remember my login session for a reasonable time so that I don't have to log in repeatedly during my work week.
+4. **As an organization admin**, I want to bulk import coaches via CSV so that I can efficiently onboard multiple team members.
 
-5. **As an organization admin**, I want to see proper navigation structure once logged in so that future features can be easily added.
+5. **As an organization admin**, I want to manage my subscription and billing so that I can upgrade, downgrade, or cancel as needed.
+
+6. **As an organization admin**, I want to view analytics about coach activity and content creation so that I can track platform usage.
+
+7. **As an organization admin**, I want to configure organization settings so that I can customize how my team uses the platform.
+
+8. **As a regular coach**, I should see a clear error message when trying to log in so that I understand this portal is for administrators only.
 
 ## Functional Requirements
 
@@ -40,19 +48,19 @@ Phase 1 establishes the foundational infrastructure for the Rinkflow Admin Porta
 
 ### Root Page Behavior (FR9-FR11)
 
-9. **FR9**: The system must implement a login page at the root route (/) that:
-   - Shows login form when not authenticated
+9. **FR9**: The system must handle the root route (/) as follows:
+   - Redirects to /login when not authenticated
    - Redirects to /dashboard immediately if already authenticated as admin
    - Shows error message if authenticated user is not an admin
-10. **FR10**: The root page must display Rinkflow branding and login functionality
-11. **FR11**: The root page must be the only publicly accessible page
+10. **FR10**: The login page must display Rinkflow branding and authentication functionality
+11. **FR11**: The (auth) route group pages (/login, /forgot-password) must be the only publicly accessible pages
 
 ### Protected Routes (FR12-FR15)
 
-12. **FR12**: The system must protect all routes except the root, requiring admin authentication
-13. **FR13**: The system must redirect unauthenticated users to the root page when accessing protected routes  
-14. **FR14**: The system must redirect authenticated admins from root to /dashboard automatically
-15. **FR15**: The system must set up the protected route structure for future feature development (/dashboard, /coaches, /billing, etc.)
+12. **FR12**: The system must protect all (app) routes, requiring admin authentication
+13. **FR13**: The system must redirect unauthenticated users to /login when accessing protected routes  
+14. **FR14**: The system must redirect authenticated admins from root and /login to /dashboard automatically
+15. **FR15**: The system must implement all navigation routes: /dashboard, /coaches, /organization-settings, /billing, /analytics, /settings
 
 ### Branding & UI (FR16-FR20)
 
@@ -62,26 +70,71 @@ Phase 1 establishes the foundational infrastructure for the Rinkflow Admin Porta
 19. **FR19**: The system must implement responsive design with desktop-first optimization
 20. **FR20**: The system must support dark mode if provided by Catalyst theme
 
-### Environment Configuration (FR21-FR25)
+### Dashboard Page (FR21-FR25)
 
-21. **FR21**: The system must support environment variables for Supabase URL and anonymous key
-22. **FR22**: The system must support switching between local (Docker-based) and production Supabase instances
-23. **FR23**: The system must securely store service role keys in environment variables
-24. **FR24**: The system must not expose sensitive keys in client-side code
-25. **FR25**: The system must use the existing local Docker Supabase instance for development and remote Supabase dashboard for production
+21. **FR21**: The dashboard must display organization overview metrics (total coaches, subscription status)
+22. **FR22**: The dashboard must show recent activity and events
+23. **FR23**: The dashboard must provide quick action cards for common tasks
+24. **FR24**: The dashboard must refresh data using React Query
+25. **FR25**: The dashboard must load within 2 seconds
+
+### Coaches Management (FR26-FR33)
+
+26. **FR26**: The coaches page must display all organization coaches in a paginated table
+27. **FR27**: The system must support adding individual coaches by email
+28. **FR28**: The system must support bulk coach import via CSV file upload
+29. **FR29**: The system must validate seat limits before adding coaches
+30. **FR30**: The system must support removing coaches with confirmation
+31. **FR31**: The system must provide search and filter capabilities for coaches
+32. **FR32**: The system must support role assignment (admin/member)
+33. **FR33**: The system must export coach lists to CSV format
+
+### Organization Settings (FR34-FR38)
+
+34. **FR34**: The settings page must display organization name and details
+35. **FR35**: The system must allow editing organization information
+36. **FR36**: The system must display member count vs seat limit
+37. **FR37**: The system must show current subscription status
+38. **FR38**: The system must allow managing organization administrators
+
+### Billing Management (FR39-FR45)
+
+39. **FR39**: The billing page must display current subscription plan
+40. **FR40**: The system must show seat usage with visual indicators
+41. **FR41**: The system must provide upgrade/downgrade plan options
+42. **FR42**: The system must display billing history and invoices
+43. **FR43**: The system must integrate with Stripe billing portal
+44. **FR44**: The system must support subscription cancellation
+45. **FR45**: The system must handle failed payment notifications
+
+### Analytics & Reporting (FR46-FR50)
+
+46. **FR46**: The analytics page must show organization usage metrics
+47. **FR47**: The system must display coach activity statistics
+48. **FR48**: The system must track content creation (drills, practice plans)
+49. **FR49**: The system must provide revenue and billing trends
+50. **FR50**: The system must export analytics data to CSV
+
+### Settings & Configuration (FR51-FR55)
+
+51. **FR51**: The settings page must allow admin profile management
+52. **FR52**: The system must provide app preference configuration
+53. **FR53**: The system must manage notification settings
+54. **FR54**: The system must display audit logs for admin actions
+55. **FR55**: The system must securely handle all environment variables
 
 ## Non-Goals (Out of Scope)
 
-1. **No dashboard implementation**: Dashboard with metrics comes in Phase 2
-2. **No coach management**: Coach add/remove functionality comes in Phase 2
-3. **No billing features**: Stripe and billing integration deferred to Phase 2
-4. **No analytics pages**: Usage statistics come in Phase 2
-5. **No settings pages**: Organization settings come in Phase 2
-6. **No organization signup flow**: No public signup in Phase 1
-7. **No separate login page**: Login is integrated into the root landing page
-8. **No real data integration**: Phase 1 focuses on authentication setup only
-9. **No email notifications**: No email system implementation in Phase 1
-10. **No API development**: All backend API work happens in the main Rinkflow codebase
+1. **No public organization signup**: Organizations are created through other channels
+2. **No mobile app integration**: This is a web-only admin portal
+3. **No coach-facing features**: Coaches use the mobile app exclusively
+4. **No email notifications**: Email system deferred to Phase 2
+5. **No real-time collaboration**: Single admin user at a time
+6. **No API development**: Backend work happens in main Rinkflow codebase
+7. **No custom reporting**: Only predefined analytics views
+8. **No white-label customization**: Standard Rinkflow branding only
+9. **No webhook integrations**: Third-party integrations deferred
+10. **No advanced permissions**: Simple admin/non-admin distinction
 
 ## Design Considerations
 
@@ -108,22 +161,37 @@ Phase 1 establishes the foundational infrastructure for the Rinkflow Admin Porta
    NEXT_PUBLIC_SUPABASE_URL=https://wsyqoooivsvfwhgpcohm.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
    SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
+   
+   # For future phases (reference only)
+   # STRIPE_SECRET_KEY=sk_...
+   # STRIPE_WEBHOOK_SECRET=whsec_...
+   # STRIPE_PUBLISHABLE_KEY=pk_...
    ```
 6. **Admin Check Logic**: Implement temporary email whitelist check against hardcoded admin emails until organization_members table is ready
-7. **TypeScript Types**: Define interfaces for User, Organization, and Admin contexts
+7. **TypeScript Types**: Copy database types from main Rinkflow codebase `src/types/database.types.ts` for consistency
 8. **Local Development**: Use existing Docker-based local Supabase instance for development
 9. **Error Handling**: Implement comprehensive error catching and user-friendly error messages throughout
+10. **Service Role Key Usage**: Use service role key only for server-side operations, never expose in client-side code
+11. **Available Backend Resources**: The following resources from the main Rinkflow codebase can be referenced for Phase 2:
+    - Server-side functions in `src/lib/supabase/organizations-server.ts`
+    - Invoice management in `src/lib/supabase/invoices-server.ts`
+    - Database migrations already applied (organizations, organization_members tables exist)
+12. **Dependencies to Install**: 
+    - `@supabase/supabase-js` - Required for Phase 1
+    - `@tanstack/react-query` - Required for data fetching and caching
 
 ## Success Metrics
 
-1. **Authentication Success Rate**: 100% of whitelisted admin emails can successfully log in
-2. **Access Control**: 0% of non-admin users can access protected routes
-3. **Login Flow**: Root page shows login form and redirects to /dashboard after successful admin authentication
-4. **Root Page Performance**: Root page loads in under 2 seconds
-5. **Single Public Page**: Only root route (/) is accessible without authentication
-6. **Session Persistence**: Sessions remain active for 7 days with activity refresh working
-7. **Protected Route Setup**: All non-root routes properly protected and redirect when unauthenticated
-8. **Environment Switching**: Development and production environments work without code changes
+1. **Authentication**: 100% of admin emails can log in via email or Google OAuth
+2. **Access Control**: Non-admin users cannot access any protected routes
+3. **Page Load Performance**: All pages load in under 2 seconds
+4. **Data Operations**: CSV import/export handles 1000+ coaches without errors
+5. **Billing Integration**: Stripe operations complete within 3 seconds
+6. **Search Performance**: Coach search returns results in under 500ms
+7. **Session Management**: Sessions persist for 7 days with proper refresh
+8. **Error Handling**: All errors show user-friendly messages
+9. **Mobile Responsiveness**: All pages usable on tablet devices
+10. **Production Deployment**: Zero critical bugs in first week
 
 ## Implementation Notes
 
@@ -161,29 +229,53 @@ const ERROR_MESSAGES = {
 
 ### Key Files to Modify:
 - `/src/app/layout.tsx` - Add authentication provider
-- `/src/app/page.tsx` - Implement login page at root
-- `/src/app/dashboard/page.tsx` - Create protected dashboard page (placeholder)
+- `/src/app/page.tsx` - Implement login page at root (redirects to (auth)/login)
+- `/src/app/(auth)/layout.tsx` - Keep auth layout (no sidebar)
+- `/src/app/(auth)/login/page.tsx` - Update login page with Supabase
+- `/src/app/(auth)/forgot-password/page.tsx` - Keep forgot password page
+- `/src/app/(app)/layout.tsx` - Keep app layout with sidebar
+- `/src/app/(app)/dashboard/page.tsx` - Create dashboard placeholder
 - `/src/middleware.ts` - Add route protection and admin check
 - `/src/lib/supabase.ts` - Create Supabase client configuration
 - `/src/lib/auth.ts` - Admin email whitelist and auth helpers
 - `.env.local` - Add environment variables
-- Remove all `/src/app/(auth)/*` and `/src/app/(app)/*` route groups
 
 ### Testing Checklist:
-- [ ] Root page (/) shows login form when not authenticated
-- [ ] Root page (/) automatically redirects to /dashboard if already authenticated as admin
-- [ ] Root page is the only public route
-- [ ] Admin can log in with username/password (whitelisted email)
-- [ ] Admin can log in with Google OAuth (whitelisted email)  
-- [ ] Non-admin users see error message when attempting to log in
-- [ ] Non-admin users cannot access any protected routes (/dashboard, etc.)
-- [ ] Session persists for 7 days
-- [ ] Session refreshes on activity
-- [ ] Protected routes redirect to root (/) when unauthenticated
-- [ ] After successful admin login, automatic redirect to /dashboard
-- [ ] Logout clears session and redirects to root (/)
-- [ ] No other public pages are accessible
-- [ ] Dark mode works correctly (if supported)
-- [ ] Local Docker Supabase instance works for development
-- [ ] Production Supabase instance works when deployed
-- [ ] All error messages are user-friendly and helpful
+
+#### Authentication
+- [ ] Email/password login works
+- [ ] Google OAuth login works
+- [ ] Forgot password flow sends reset email
+- [ ] Non-admin users see appropriate error
+- [ ] Sessions persist for 7 days
+- [ ] Logout clears session properly
+
+#### Dashboard
+- [ ] Displays organization metrics
+- [ ] Shows recent activity
+- [ ] Quick actions work
+- [ ] Data refreshes properly
+
+#### Coaches Management
+- [ ] List displays with pagination
+- [ ] Add single coach works
+- [ ] CSV import handles 100+ coaches
+- [ ] Remove coach with confirmation
+- [ ] Search and filters work
+- [ ] CSV export generates valid file
+
+#### Billing
+- [ ] Displays current subscription
+- [ ] Stripe portal link works
+- [ ] Shows billing history
+- [ ] Upgrade/downgrade flows work
+
+#### Analytics
+- [ ] Shows usage metrics
+- [ ] Displays coach activity
+- [ ] Exports data to CSV
+
+#### Performance
+- [ ] All pages load < 2 seconds
+- [ ] Search returns < 500ms
+- [ ] CSV operations handle 1000+ rows
