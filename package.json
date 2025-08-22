@@ -6,11 +6,13 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "types:sync": "cp ../rinkflow/src/types/database.types.ts src/types/database.types.ts && echo '✅ Database types synced from main Rinkflow codebase'"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
     "@heroicons/react": "^2.2.0",
+    "@supabase/ssr": "0.7.0",
     "@supabase/supabase-js": "2.56.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@tanstack/react-query": "5.85.5",
@@ -29,6 +31,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@tanstack/react-query-devtools": "5.85.5",
     "@types/node": "^20",
     "@types/papaparse": "5.3.16",
     "@types/react": "^19",
