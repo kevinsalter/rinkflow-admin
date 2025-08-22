@@ -52,16 +52,18 @@
 ## Tasks
 
 - [ ] 1.0 Environment Setup & Core Configuration
-  - [ ] 1.1 Create `.env.local` with Supabase URL, anon key, service role key, and Stripe keys
-  - [ ] 1.2 Create `.env.example` with placeholder values for documentation
-  - [ ] 1.3 Install core dependencies: `@supabase/supabase-js`, `@tanstack/react-query`, `stripe`
-  - [ ] 1.4 Install utility dependencies: `react-hook-form`, `papaparse`, `date-fns`
+  - [x] 1.1 Create `.env.local` with Supabase URL, anon key, service role key, and Stripe keys
+  - [x] 1.2 Create `.env.example` with placeholder values for documentation
+  - [x] 1.3 Install core dependencies: `@supabase/supabase-js`, `@tanstack/react-query`, `stripe`
+  - [x] 1.4 Install utility dependencies: `react-hook-form`, `papaparse`, `date-fns`
   - [ ] 1.5 Copy database types from main Rinkflow codebase `src/types/database.types.ts`
   - [ ] 1.6 Create Supabase client for client-side operations in `/src/lib/supabase-client.ts`
   - [ ] 1.7 Create Supabase client for server-side operations in `/src/lib/supabase-server.ts`
   - [ ] 1.8 Configure Stripe client in `/src/lib/stripe.ts` for server-side use only
   - [ ] 1.9 Set up React Query provider in `/src/app/providers.tsx`
   - [ ] 1.10 Configure error boundaries for data fetching failures
+  - [ ] 1.11 Create organization context provider that uses fetchUserOrganization
+  - [ ] 1.12 Add organization_id to all API calls and queries
 
 - [ ] 2.0 Authentication System Implementation
   - [ ] 2.1 Create AuthContext in `/src/contexts/AuthContext.tsx` for auth state management
@@ -69,11 +71,10 @@
   - [ ] 2.3 Create admin email whitelist in `/src/lib/auth.ts`
   - [ ] 2.4 Update root page `/src/app/page.tsx` to redirect based on auth status
   - [ ] 2.5 Implement login page `/src/app/(auth)/login/page.tsx` with email/password
-  - [ ] 2.6 Add Google OAuth button and flow to login page
-  - [ ] 2.7 Implement forgot password page `/src/app/(auth)/forgot-password/page.tsx`
-  - [ ] 2.8 Add logout functionality to app layout
-  - [ ] 2.9 Configure 7-day session persistence with refresh
-  - [ ] 2.10 Test all auth flows (login, OAuth, forgot password, logout)
+  - [ ] 2.6 Implement forgot password page `/src/app/(auth)/forgot-password/page.tsx`
+  - [ ] 2.7 Add logout functionality to app layout
+  - [ ] 2.8 Configure 7-day session persistence with refresh
+  - [ ] 2.9 Test all auth flows (login, forgot password, logout)
 
 - [ ] 3.0 Navigation Structure & Branding
   - [ ] 3.1 Update `/src/app/(app)/layout.tsx` with sidebar navigation menu
@@ -107,6 +108,7 @@
   - [ ] 5.7 Implement loading and error states
 
 - [ ] 6.0 Analytics Page
+  - [ ] 6.0a Use proper JOIN queries to avoid N+1 issues (reference fixed queries from backend)
   - [ ] 6.1 Create analytics page `/src/app/(app)/analytics/page.tsx`
   - [ ] 6.2 Implement usage metrics cards (total drills, practice plans)
   - [ ] 6.3 Add coach activity chart using Tremor components
@@ -127,6 +129,7 @@
   - [ ] 7.8 Add placeholder for plan upgrade/downgrade
 
 - [ ] 8.0 Coaches Management Page
+  - [ ] 8.0a Implement race condition handling for concurrent member additions
   - [ ] 8.1 Create coaches page `/src/app/(app)/coaches/page.tsx`
   - [ ] 8.2 Implement coaches list with Catalyst table component
   - [ ] 8.3 Add pagination (50 coaches per page)
@@ -141,6 +144,7 @@
   - [ ] 8.12 Add loading states and error handling
 
 - [ ] 9.0 CSV Operations for Coaches
+  - [ ] 9.0a Add transaction support for bulk operations to ensure atomicity
   - [ ] 9.1 Create bulk add modal with textarea for multiple emails
   - [ ] 9.2 Implement CSV upload using papaparse library
   - [ ] 9.3 Create `/src/app/api/coaches/import/route.ts` endpoint
@@ -153,6 +157,9 @@
   - [ ] 9.10 Test with 1000+ coach imports
 
 - [ ] 10.0 Organization Settings Write Operations
+  - [ ] 10.0a Add organization_id filtering to all Supabase queries
+  - [ ] 10.0b Handle RLS policy errors gracefully (403 responses)
+  - [ ] 10.0c Ensure all API routes verify organization membership before operations
   - [ ] 10.1 Add edit mode to organization settings page
   - [ ] 10.2 Implement form with react-hook-form
   - [ ] 10.3 Create organization name/description edit fields
@@ -180,11 +187,15 @@
   - [ ] 12.5 Add invoice download functionality
   - [ ] 12.6 Implement subscription cancellation flow
   - [ ] 12.7 Create `/src/app/api/stripe/webhook/route.ts`
+    - [ ] 12.7a Implement idempotency key handling using Stripe-Idempotency-Key header
+    - [ ] 12.7b Add webhook signature verification with stripe.webhooks.constructEvent
+    - [ ] 12.7c Store processed webhook events to prevent duplicate processing
+    - [ ] 12.7d Handle subscription lifecycle events (created, updated, deleted, payment_failed)
   - [ ] 12.8 Test Stripe webhook handling
   - [ ] 12.9 Handle failed payment notifications
 
 - [ ] 13.0 Testing & Quality Assurance
-  - [ ] 13.1 Test all authentication flows (login, OAuth, logout)
+  - [ ] 13.1 Test all authentication flows (login, logout)
   - [ ] 13.2 Test coach CRUD operations thoroughly
   - [ ] 13.3 Test CSV import with various file formats
   - [ ] 13.4 Test CSV export and verify data integrity
@@ -194,6 +205,9 @@
   - [ ] 13.8 Mobile responsive testing on tablets
   - [ ] 13.9 Cross-browser compatibility testing
   - [ ] 13.10 Security audit for API endpoints
+  - [ ] 13.11 Test RLS policy violations and proper error messages
+  - [ ] 13.12 Test race conditions in member management
+  - [ ] 13.13 Test idempotent webhook processing
 
 - [ ] 14.0 Deployment & Launch
   - [ ] 14.1 Configure production environment variables
@@ -206,3 +220,9 @@
   - [ ] 14.8 Deploy to production
   - [ ] 14.9 Configure monitoring and alerts
   - [ ] 14.10 Monitor application for first 24-48 hours
+
+- [ ] 15.0 Super Admin Features
+  - [ ] 15.1 Create organization creation flow for super admins
+  - [ ] 15.2 Add organization list/search for super admins
+  - [ ] 15.3 Implement organization archival/deletion
+  - [ ] 15.4 Add ability to transfer organization ownership
