@@ -29,6 +29,7 @@ import {
 import {
   HomeIcon,
   QuestionMarkCircleIcon,
+  SparklesIcon,
   UserGroupIcon,
   CreditCardIcon,
   Cog6ToothIcon,
@@ -156,6 +157,10 @@ export function ApplicationLayout({
               <SidebarItem href="mailto:support@rinkflow.com">
                 <QuestionMarkCircleIcon />
                 <SidebarLabel>Support</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem href="/changelog" current={pathname.startsWith('/changelog')}>
+                <SparklesIcon />
+                <SidebarLabel>Changelog</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
           </SidebarBody>

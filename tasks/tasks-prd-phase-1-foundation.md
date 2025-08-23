@@ -71,17 +71,17 @@
   - [x] 2.8 Configure 7-day session persistence with refresh
   - [x] 2.9 Test all auth flows (login, logout) - Testing checklist created
 
-- [ ] 3.0 Navigation Structure & Branding (this should mostly be done from the work in @tasks/completed/tasks-cleanup-routes.md, but double check)
-  - [ ] 3.1 Update `/src/app/(app)/layout.tsx` with sidebar navigation menu
-  - [ ] 3.2 Create all page route files (can be placeholders initially)
-  - [ ] 3.3 Replace Catalyst logo with Rinkflow logo in all locations
-  - [ ] 3.4 Update favicon and app icons
-  - [ ] 3.5 Update page titles and metadata to reference Rinkflow
-  - [ ] 3.6 Remove all demo data from existing pages
-  - [ ] 3.7 Clean up unused Catalyst demo components
-  - [ ] 3.8 Configure navigation items (Dashboard, Coaches, Settings, etc.)
+- [x] 3.0 Navigation Structure & Branding (this should mostly be done from the work in @tasks/completed/tasks-cleanup-routes.md, but double check)
+  - [x] 3.1 Update `/src/app/(app)/layout.tsx` with sidebar navigation menu
+  - [x] 3.2 Create all page route files (can be placeholders initially)
+  - [x] 3.3 Replace Catalyst logo with Rinkflow logo in all locations
+  - [x] 3.4 Update page titles and metadata to reference Rinkflow
+  - [x] 3.5 Remove all demo data from existing pages
+  - [x] 3.6 Clean up unused Catalyst demo components
+  - [x] 3.7 Configure navigation items (Dashboard, Coaches, Settings, etc.)
 
 - [ ] 4.0 Dashboard Page (includes Organization Info)
+  - [ ] 4.0a read the Catalyst docs https://catalyst.tailwindui.com/docs
   - [ ] 4.1 Create dashboard page `/src/app/(app)/dashboard/page.tsx`
   - [ ] 4.2 Display organization name and subscription status
   - [ ] 4.3 Show member count vs seat limit with progress indicator
