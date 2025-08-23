@@ -1,7 +1,7 @@
 ### Commit Guidelines
 
 run `bunx tsc --noEmit`
-run `bun run test:fast`
+run `bun run test`
 run `git add -A && git status`
 write a commit message and make the commit
 
