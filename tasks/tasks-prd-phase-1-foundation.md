@@ -10,10 +10,9 @@
 - `.env.example` - Example environment variables for documentation
 
 ### Authentication Pages
-- `/src/app/page.tsx` - Root page that redirects to login or dashboard
-- `/src/app/(auth)/layout.tsx` - Auth layout without sidebar
-- `/src/app/(auth)/login/page.tsx` - Login page with Supabase authentication
-- `/src/components/LoginForm.tsx` - Login form component using Catalyst UI
+- `/src/app/page.tsx` - Root page with login form and auth redirect logic
+- `/src/app/(auth)/login/page.tsx` - Login page that redirects to root for consistency
+- `/src/app/not-found.tsx` - 404 page with link back to home
 
 ### Admin Portal Pages
 - `/src/app/(app)/layout.tsx` - App layout with sidebar and protection
@@ -62,15 +61,15 @@
   - [x] 1.12 Add organization_id to all API calls and queries
 
 - [ ] 2.0 Authentication System Implementation (read the docs first https://supabase.com/docs/guides/auth/server-side/nextjs)
-  - [ ] 2.1 Create AuthContext in `/src/contexts/AuthContext.tsx` for auth state management
-  - [ ] 2.2 Implement middleware in `/src/middleware.ts` for route protection (using actual organization roles instead of whitelist)
-  - [ ] 2.3 make sure the "Rinkflow Admin" title in the top navbar is clickable, and redirects to /
-  - [ ] 2.4 Update root page `/src/app/page.tsx` to redirect based on auth status
-  - [ ] 2.5 Implement login page `/src/app/(auth)/login/page.tsx` with email/password
-  - [ ] 2.6 make sure the bottom left user avatar uses the user's avatar or falls back to a placeholder, and make sure it's the logged in user's email that displays
-  - [ ] 2.7 Add logout functionality to app layout
-  - [ ] 2.8 Configure 7-day session persistence with refresh
-  - [ ] 2.9 Test all auth flows (login, logout) - Testing checklist created
+  - [x] 2.1 Create AuthContext in `/src/contexts/AuthContext.tsx` for auth state management
+  - [x] 2.2 Implement middleware in `/src/middleware.ts` for route protection (using actual organization roles instead of whitelist)
+  - [x] 2.3 make sure the "Rinkflow Admin" title in the top navbar is clickable, and redirects to /
+  - [x] 2.4 Update root page `/src/app/page.tsx` to redirect based on auth status
+  - [x] 2.5 Implement login page `/src/app/(auth)/login/page.tsx` with email/password
+  - [x] 2.6 make sure the bottom left user avatar uses the user's avatar or falls back to a placeholder image, and make sure it's the logged in user's email that displays
+  - [x] 2.7 Add logout functionality to app layout
+  - [x] 2.8 Configure 7-day session persistence with refresh
+  - [x] 2.9 Test all auth flows (login, logout) - Testing checklist created
 
 - [ ] 3.0 Navigation Structure & Branding (this should mostly be done from the work in @tasks/completed/tasks-cleanup-routes.md, but double check)
   - [ ] 3.1 Update `/src/app/(app)/layout.tsx` with sidebar navigation menu
