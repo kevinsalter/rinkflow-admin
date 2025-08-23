@@ -35,6 +35,7 @@ import {
   Cog6ToothIcon,
 } from '@heroicons/react/20/solid'
 import { usePathname, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import type { User } from '@supabase/supabase-js'
@@ -67,19 +68,53 @@ export function ApplicationLayout({
   const pathname = usePathname()
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
     // Get initial user
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+        
+        // Try to get avatar from user metadata first (OAuth providers often set this)
+        if (user?.user_metadata?.avatar_url) {
+          setAvatarUrl(user.user_metadata.avatar_url)
+        } else if (user?.user_metadata?.picture) {
+          setAvatarUrl(user.user_metadata.picture)
+        }
+        
+        // Then try to fetch from user_profiles table
+        if (user && !avatarUrl) {
+          const { data: profile, error } = await supabase
+            .from('user_profiles')
+            .select('avatar_url, social_avatar_url')
+            .eq('id', user.id)
+            .maybeSingle()
+          
+          if (!error && profile) {
+            setAvatarUrl(profile.avatar_url || profile.social_avatar_url || null)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error)
+      }
     }
     getUser()
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
+      
+      // Set avatar from user metadata
+      if (session?.user?.user_metadata?.avatar_url) {
+        setAvatarUrl(session.user.user_metadata.avatar_url)
+      } else if (session?.user?.user_metadata?.picture) {
+        setAvatarUrl(session.user.user_metadata.picture)
+      } else {
+        setAvatarUrl(null)
+      }
     })
 
     return () => subscription.unsubscribe()
@@ -108,7 +143,7 @@ export function ApplicationLayout({
             <Dropdown>
               <DropdownButton as={NavbarItem}>
                 <Avatar 
-                  src={user?.user_metadata?.avatar_url} 
+                  src={avatarUrl} 
                   initials={user?.email ? getInitials(user.email) : 'U'}
                   square 
                 />
@@ -121,14 +156,14 @@ export function ApplicationLayout({
       sidebar={
         <Sidebar>
           <SidebarHeader>
-            <SidebarItem href="/">
+            <Link href="/dashboard" className="flex items-center gap-3 px-2 py-2.5">
               <span className="font-black text-xl" style={{
                 fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 letterSpacing: '-0.03em'
               }}>
                 Rinkflow Admin
               </span>
-            </SidebarItem>
+            </Link>
           </SidebarHeader>
 
           <SidebarBody>
@@ -170,7 +205,7 @@ export function ApplicationLayout({
               <DropdownButton as={SidebarItem}>
                 <span className="flex min-w-0 items-center gap-3">
                   <Avatar 
-                    src={user?.user_metadata?.avatar_url} 
+                    src={avatarUrl} 
                     initials={user?.email ? getInitials(user.email) : 'U'}
                     className="size-10" 
                     square 

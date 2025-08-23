@@ -288,7 +288,7 @@ export default function Dashboard() {
               {orgStatsLoading ? '—' : orgStats?.totalDrills || 0}
             </div>
             <p className="mt-1 text-xs text-zinc-500">
-              ~{orgStatsLoading ? '—' : orgStats?.avgDrillsPerActiveMember?.toFixed(1) || 0} per active member
+              {orgStatsLoading ? '' : orgStats?.activeMembersCount ? `avg ${orgStats.avgDrillsPerActiveMember?.toFixed(0)} per user` : 'total drills'}
             </p>
           </div>
 
@@ -304,7 +304,7 @@ export default function Dashboard() {
               {orgStatsLoading ? '—' : orgStats?.totalPracticePlans || 0}
             </div>
             <p className="mt-1 text-xs text-zinc-500">
-              ~{orgStatsLoading ? '—' : orgStats?.avgPlansPerActiveMember?.toFixed(1) || 0} per active member
+              {orgStatsLoading ? '' : orgStats?.activeMembersCount ? `avg ${orgStats.avgPlansPerActiveMember?.toFixed(0)} per user` : 'total plans'}
             </p>
           </div>
 

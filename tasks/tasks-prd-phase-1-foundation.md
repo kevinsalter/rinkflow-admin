@@ -98,7 +98,7 @@
   - [x] 4.5 Add basic usage stats if available
   - [x] 4.6 Implement auto-refresh with React Query
   - [x] 4.7 Add loading skeletons and error states
-  - [ ] 4.8 Implement dashboard design review suggestions
+  - [x] 4.8 Add user's avatar is desktop and mobile views
 
 - [ ] 5.0 Billing Page (Read-Only)
   - [ ] 5.1 Create billing page `/src/app/(app)/billing/page.tsx`
