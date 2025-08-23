@@ -30,7 +30,8 @@
 - `/src/app/api/stripe/webhook/route.ts` - Stripe webhook handler
 
 ### React Query Hooks
-- `/src/hooks/queries/useOrganization.ts` - Organization data fetching
+- `/src/hooks/queries/useOrganizationStats.ts` - Organization member and coach counts
+- `/src/hooks/queries/useOrganizationStatistics.ts` - Platform usage stats from materialized view
 - `/src/hooks/queries/useCoaches.ts` - Coaches list and mutations
 - `/src/hooks/queries/useBilling.ts` - Subscription and invoice queries
 
@@ -43,6 +44,14 @@
 - Server-side functions exist in the main codebase that can be referenced: `organizations-server.ts`, `invoices-server.ts`
 - Service Role Key must only be used server-side for admin operations, never exposed in client code
 - Use Catalyst UI components wherever possible to maintain consistency
+
+### Phase 2 Considerations
+
+- **Materialized View Refresh Strategy**: The `organization_statistics_mv` materialized view needs a refresh strategy. Options:
+  - Set up pg_cron for scheduled refreshes (hourly/daily)
+  - Trigger refresh after significant data changes (member additions, content creation)
+  - Add manual refresh button in admin UI
+  - Current implementation has fallback to direct queries, so this is not blocking
 
 ## Tasks
 
@@ -80,17 +89,16 @@
   - [x] 3.6 Clean up unused Catalyst demo components
   - [x] 3.7 Configure navigation items (Dashboard, Coaches, Settings, etc.)
 
-- [ ] 4.0 Dashboard Page (includes Organization Info)
-  - [ ] 4.0a read the Catalyst docs https://catalyst.tailwindui.com/docs
-  - [ ] 4.1 Create dashboard page `/src/app/(app)/dashboard/page.tsx`
-  - [ ] 4.2 Display organization name and subscription status
-  - [ ] 4.3 Show member count vs seat limit with progress indicator
-  - [ ] 4.4 Implement simple metric cards (total coaches, seat usage)
-  - [ ] 4.5 Create `useOrganization` hook for fetching org data
-  - [ ] 4.6 Add basic usage stats if available
-  - [ ] 4.7 Implement auto-refresh with React Query
-  - [ ] 4.8 Add loading skeletons and error states
-  - [ ] 4.9 Test page load performance (< 2 seconds)
+- [x] 4.0 Dashboard Page (includes Organization Info)
+  - [x] 4.0a read the Catalyst docs https://catalyst.tailwindui.com/docs
+  - [x] 4.1 Create dashboard page `/src/app/(app)/dashboard/page.tsx`
+  - [x] 4.2 Display organization name and subscription status
+  - [x] 4.3 Show member count vs seat limit with progress indicator
+  - [x] 4.4 Implement simple metric cards (total coaches, seat usage)
+  - [x] 4.5 Add basic usage stats if available
+  - [x] 4.6 Implement auto-refresh with React Query
+  - [x] 4.7 Add loading skeletons and error states
+  - [ ] 4.8 Implement dashboard design review suggestions
 
 - [ ] 5.0 Billing Page (Read-Only)
   - [ ] 5.1 Create billing page `/src/app/(app)/billing/page.tsx`
