@@ -109,11 +109,11 @@
   - [x] 5.6 Add Stripe billing portal redirect button
 
 - [ ] 6.0 Coaches Management Page (Simplified)
-  - [ ] 6.1 Create coaches page `/src/app/(app)/coaches/page.tsx`
-  - [ ] 6.2 Implement coaches list with Catalyst table component
-  - [ ] 6.3 Add pagination (50 coaches per page)
-  - [ ] 6.4 Create search input for name/email filtering
-  - [ ] 6.5 Implement `useCoaches` hook with React Query
+  - [x] 6.1 Create coaches page `/src/app/(app)/coaches/page.tsx`
+  - [x] 6.2 Implement coaches list with Catalyst table component
+  - [x] 6.3 Add pagination (50 coaches per page)
+  - [x] 6.4 Create search input for name/email filtering
+  - [x] 6.5 Implement `useCoaches` hook with React Query
   - [ ] 6.6 Create add coach modal with email input
   - [ ] 6.7 Implement remove coach with confirmation dialog
   - [ ] 6.8 Add seat limit validation before adding
