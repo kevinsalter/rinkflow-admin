@@ -116,7 +116,7 @@
   - [x] 6.5 Implement `useCoaches` hook with React Query
   - [x] 6.6 Create add coach modal with email input
   - [x] 6.7 Create API route for coach operations with service role
-  - [ ] 6.8 Implement remove coach with confirmation dialog
+  - [x] 6.8 Implement remove coach with confirmation dialog
   - [ ] 6.9 Add seat limit validation before adding
   - [ ] 6.10 Add loading states and error handling
 

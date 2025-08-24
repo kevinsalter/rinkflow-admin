@@ -92,19 +92,21 @@ export function useAddCoach() {
 export function useRemoveCoach() {
   const { organization } = useOrganization()
   const queryClient = useQueryClient()
-  const supabase = createClient()
 
   return useMutation({
     mutationFn: async (memberId: string) => {
       if (!organization?.id) throw new Error('No organization')
 
-      const { error } = await supabase
-        .from('organization_members')
-        .update({ removed_at: new Date().toISOString() })
-        .eq('id', memberId)
-        .eq('organization_id', organization.id)
+      const response = await fetch(`/api/coaches?memberId=${memberId}&organizationId=${organization.id}`, {
+        method: 'DELETE',
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to remove coach')
+      }
+
+      return response.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coaches', organization?.id] })

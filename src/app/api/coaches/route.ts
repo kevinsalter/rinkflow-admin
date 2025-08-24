@@ -141,3 +141,77 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const memberId = searchParams.get('memberId')
+    const organizationId = searchParams.get('organizationId')
+
+    if (!memberId || !organizationId) {
+      return NextResponse.json(
+        { error: 'Member ID and organization ID are required' },
+        { status: 400 }
+      )
+    }
+
+    // Check if user is authenticated using regular client
+    const authClient = await createClient()
+    const { data: { user }, error: authError } = await authClient.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Use service role client to bypass RLS
+    const supabase = await createServiceRoleClient()
+
+    // Check if member exists and belongs to this organization
+    const { data: member } = await supabase
+      .from('organization_members')
+      .select('id, role')
+      .eq('id', memberId)
+      .eq('organization_id', organizationId)
+      .single()
+
+    if (!member) {
+      return NextResponse.json(
+        { error: 'Member not found' },
+        { status: 404 }
+      )
+    }
+
+    // Prevent removing owners
+    if (member.role === 'owner') {
+      return NextResponse.json(
+        { error: 'Cannot remove organization owner' },
+        { status: 403 }
+      )
+    }
+
+    // Soft delete by setting removed_at
+    const { error } = await supabase
+      .from('organization_members')
+      .update({ removed_at: new Date().toISOString() })
+      .eq('id', memberId)
+      .eq('organization_id', organizationId)
+
+    if (error) {
+      console.error('Error removing coach:', error)
+      return NextResponse.json(
+        { error: 'Unable to remove coach. Please try again later.' },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error in DELETE /api/coaches:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

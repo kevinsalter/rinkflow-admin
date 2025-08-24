@@ -6,13 +6,14 @@ import { Button } from '@/components/button'
 import { Input } from '@/components/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
 import { Badge } from '@/components/badge'
-import { UserPlusIcon, MagnifyingGlassIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { UserPlusIcon, MagnifyingGlassIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useOrganization } from '@/contexts/OrganizationContext'
-import { useCoaches, useAddCoach } from '@/hooks/queries/useCoaches'
+import { useCoaches, useAddCoach, useRemoveCoach } from '@/hooks/queries/useCoaches'
 import { Database } from '@/types/database.types'
 import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from '@/components/dialog'
 import { Field, Label } from '@/components/fieldset'
 import { ErrorMessage } from '@/components/fieldset'
+import { InfoTooltip } from '@/components/info-tooltip'
 
 type OrganizationMember = Database['public']['Tables']['organization_members']['Row']
 
@@ -23,6 +24,8 @@ export default function CoachesPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [newCoachEmail, setNewCoachEmail] = useState('')
   const [addCoachError, setAddCoachError] = useState('')
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false)
+  const [memberToRemove, setMemberToRemove] = useState<OrganizationMember | null>(null)
   const itemsPerPage = 25
 
   // Fetch coaches/members using the custom hook
@@ -34,6 +37,9 @@ export default function CoachesPage() {
 
   // Add coach mutation
   const addCoachMutation = useAddCoach()
+  
+  // Remove coach mutation
+  const removeCoachMutation = useRemoveCoach()
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
@@ -91,6 +97,24 @@ export default function CoachesPage() {
     setNewCoachEmail('')
     setAddCoachError('')
     setIsAddModalOpen(true)
+  }
+
+  const openRemoveModal = (member: OrganizationMember) => {
+    setMemberToRemove(member)
+    setIsRemoveModalOpen(true)
+  }
+
+  const handleRemoveCoach = async () => {
+    if (!memberToRemove) return
+
+    try {
+      await removeCoachMutation.mutateAsync(memberToRemove.id)
+      setIsRemoveModalOpen(false)
+      setMemberToRemove(null)
+    } catch (error) {
+      console.error('Error removing coach:', error)
+      // Could add error toast here
+    }
   }
 
   const getRoleBadgeColor = (role: string) => {
@@ -203,13 +227,25 @@ export default function CoachesPage() {
                         {formatDate(member.joined_at || member.invited_at)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          plain
-                          className="text-red-600 hover:text-red-700"
-                          disabled={member.role === 'owner'}
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </Button>
+                        {member.role === 'owner' ? (
+                          <InfoTooltip content="Owners cannot be removed" position="left">
+                            <Button
+                              plain
+                              className="text-zinc-400 cursor-not-allowed"
+                              disabled
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </Button>
+                          </InfoTooltip>
+                        ) : (
+                          <Button
+                            plain
+                            className="text-red-600 hover:text-red-700 cursor-pointer"
+                            onClick={() => openRemoveModal(member)}
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))
@@ -297,6 +333,26 @@ export default function CoachesPage() {
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white cursor-pointer transition-all duration-150 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed dark:focus:ring-offset-zinc-800"
           >
             {addCoachMutation.isPending ? 'Adding...' : 'Add Coach'}
+          </button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Remove Coach Confirmation Dialog */}
+      <Dialog open={isRemoveModalOpen} onClose={setIsRemoveModalOpen}>
+        <DialogTitle>Remove Coach</DialogTitle>
+        <DialogDescription>
+          Are you sure you want to remove <span className="font-semibold text-zinc-900 dark:text-zinc-100">{memberToRemove?.email}</span> from your organization? They will lose access to all organization resources.
+        </DialogDescription>
+        <DialogActions>
+          <Button plain onClick={() => setIsRemoveModalOpen(false)}>
+            Cancel
+          </Button>
+          <button 
+            onClick={handleRemoveCoach}
+            disabled={removeCoachMutation.isPending}
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white cursor-pointer transition-all duration-150 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed dark:focus:ring-offset-zinc-800"
+          >
+            {removeCoachMutation.isPending ? 'Removing...' : 'Remove Coach'}
           </button>
         </DialogActions>
       </Dialog>
