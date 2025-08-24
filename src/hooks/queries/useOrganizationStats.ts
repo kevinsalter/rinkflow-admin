@@ -80,5 +80,7 @@ export function useOrganizationStats() {
     enabled: !!organizationId,
     staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 60 * 1000, // Refetch every minute
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   })
 }

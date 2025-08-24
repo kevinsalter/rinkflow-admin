@@ -100,13 +100,13 @@
   - [x] 4.7 Add loading skeletons and error states
   - [x] 4.8 Add user's avatar is desktop and mobile views
 
-- [ ] 5.0 Billing Page (Read-Only)
+- [x] 5.0 Billing Page (Read-Only)
   - [x] 5.1 Create billing page `/src/app/(app)/billing/page.tsx`
   - [x] 5.2 Display current subscription plan details
   - [x] 5.3 Show seat usage (used vs available)
   - [x] 5.4 Implement `useBilling` hook for Stripe data
   - [x] 5.5 Display recent invoices in a table
-  - [ ] 5.6 Add Stripe billing portal redirect button
+  - [x] 5.6 Add Stripe billing portal redirect button
 
 - [ ] 6.0 Coaches Management Page (Simplified)
   - [ ] 6.1 Create coaches page `/src/app/(app)/coaches/page.tsx`

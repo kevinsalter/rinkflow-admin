@@ -10,12 +10,47 @@ import { Button } from '@/components/button'
 import { useOrganization } from '@/contexts/OrganizationContext'
 import { useOrganizationStats } from '@/hooks/queries/useOrganizationStats'
 import { useBilling } from '@/hooks/queries/useBilling'
-import { ArrowDownTrayIcon, DocumentTextIcon } from '@heroicons/react/20/solid'
+import { ArrowDownTrayIcon, DocumentTextIcon, CreditCardIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/20/solid'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function BillingPage() {
-  const { organization, isLoading: orgLoading } = useOrganization()
+  const { organization, organizationId, isLoading: orgLoading } = useOrganization()
   const { data: stats, isLoading: statsLoading } = useOrganizationStats()
   const { data: billingData, isLoading: billingLoading } = useBilling()
+  const [isRedirecting, setIsRedirecting] = useState(false)
+  const router = useRouter()
+
+  const handleManageBilling = async () => {
+    if (!organizationId) return
+    
+    setIsRedirecting(true)
+    try {
+      const response = await fetch('/api/billing/portal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ organizationId }),
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create billing portal session')
+      }
+      
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error(data.error || 'No URL returned')
+      }
+    } catch (error: any) {
+      console.error('Error redirecting to billing portal:', error)
+      alert(`Error: ${error.message || 'Failed to open billing portal'}`)
+      setIsRedirecting(false)
+    }
+  }
 
 
   const getStatusColor = (status: string | null) => {
@@ -103,7 +138,32 @@ export default function BillingPage() {
 
   return (
     <>
-      <Heading>Billing</Heading>
+      <div className="flex items-center justify-between">
+        <Heading>Billing</Heading>
+        {organization?.stripe_customer_id && (
+          <Button
+            onClick={handleManageBilling}
+            disabled={isRedirecting}
+            color="dark/zinc"
+          >
+            {isRedirecting ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Redirecting...
+              </>
+            ) : (
+              <>
+                <CreditCardIcon className="h-4 w-4" />
+                Manage Billing
+                <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 ml-1" />
+              </>
+            )}
+          </Button>
+        )}
+      </div>
       
       <div className="mt-8 space-y-6">
         {/* Seat Usage Card */}
