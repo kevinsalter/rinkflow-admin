@@ -40,15 +40,47 @@ async function fetchUserOrganization() {
     throw new Error('User not authenticated')
   }
 
-  // Get user's organization membership
-  const { data: membership, error: memberError } = await supabase
+  // Get user's organization membership - first try by user_id
+  let { data: membership, error: memberError } = await supabase
     .from('organization_members')
     .select('organization_id, role')
     .eq('user_id', user.id)
     .is('removed_at', null)
     .single()
 
-  if (memberError || !membership) {
+  // If not found by user_id, try by email (for invited users who haven't joined yet)
+  if ((memberError || !membership) && user.email) {
+    const { data: emailMembership, error: emailError } = await supabase
+      .from('organization_members')
+      .select('organization_id, role')
+      .eq('email', user.email)
+      .is('removed_at', null)
+      .single()
+
+    if (!emailError && emailMembership) {
+      membership = emailMembership
+      
+      // Update the membership record with user_id and joined_at if found by email
+      // Note: This would need service role permissions, but for now we'll skip the update
+      // The user will still be able to access the organization based on their email match
+      try {
+        await supabase
+          .from('organization_members')
+          .update({ 
+            user_id: user.id,
+            joined_at: new Date().toISOString()
+          })
+          .eq('email', user.email)
+          .eq('organization_id', emailMembership.organization_id)
+          .is('removed_at', null)
+      } catch (updateError) {
+        // If update fails, we still have membership data, so continue
+        console.log('Could not update membership record, but user can still access organization')
+      }
+    }
+  }
+
+  if (!membership) {
     // User might not be part of any organization yet
     return { organization: null, role: null, organizationId: null }
   }
@@ -84,7 +116,7 @@ export function OrganizationProvider({ children }: OrganizationProviderProps) {
 
     getUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserId(session?.user?.id || null)
     })
 
