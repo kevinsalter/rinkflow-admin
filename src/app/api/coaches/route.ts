@@ -41,6 +41,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check seat limit
+    const { data: org } = await supabase
+      .from('organizations')
+      .select('seat_limit')
+      .eq('id', organizationId)
+      .single()
+
+    if (org?.seat_limit) {
+      const { count: currentMemberCount } = await supabase
+        .from('organization_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', organizationId)
+        .is('removed_at', null)
+
+      if (currentMemberCount && currentMemberCount >= org.seat_limit) {
+        return NextResponse.json(
+          { error: `Your organization has reached its seat limit of ${org.seat_limit} members. Please upgrade your plan to add more coaches.` },
+          { status: 403 }
+        )
+      }
+    }
+
     // Direct insert with service role (bypasses RLS)
     const { data, error } = await supabase
       .from('organization_members')

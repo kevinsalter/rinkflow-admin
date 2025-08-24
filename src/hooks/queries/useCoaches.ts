@@ -54,6 +54,7 @@ export function useCoaches({ searchTerm = '', page = 1, pageSize = 50 }: UseCoac
       }
     },
     enabled: !!organization?.id,
+    placeholderData: (previousData) => previousData,
   })
 }
 
@@ -137,5 +138,26 @@ export function useBulkAddCoaches() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coaches', organization?.id] })
     },
+  })
+}
+
+export function useMemberCount() {
+  const { organization } = useOrganization()
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: ['memberCount', organization?.id],
+    queryFn: async () => {
+      if (!organization?.id) throw new Error('No organization')
+      
+      const { count } = await supabase
+        .from('organization_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', organization.id)
+        .is('removed_at', null)
+
+      return count || 0
+    },
+    enabled: !!organization?.id,
   })
 }

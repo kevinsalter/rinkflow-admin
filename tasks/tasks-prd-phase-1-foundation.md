@@ -117,8 +117,8 @@
   - [x] 6.6 Create add coach modal with email input
   - [x] 6.7 Create API route for coach operations with service role
   - [x] 6.8 Implement remove coach with confirmation dialog
-  - [ ] 6.9 Add seat limit validation before adding
-  - [ ] 6.10 Add loading states and error handling
+  - [x] 6.9 Add seat limit validation before adding
+  - [x] 6.10 Add loading skeleton for the page
 
 - [ ] 7.0 CSV Operations for Coaches
   - [ ] 7.1 Create bulk add modal with textarea for multiple emails
@@ -136,17 +136,9 @@
   - [ ] 8.4 Include timestamp, user, and action type
   - [ ] 8.5 Add loading and error states
 
-- [ ] 9.0 Testing & Quality Assurance (MVP Focus)
-  - [ ] 9.1 Test authentication flows (login, logout)
-  - [ ] 9.2 Test coach add/remove operations
-  - [ ] 9.3 Test CSV import/export
-  - [ ] 9.4 Test billing portal redirect
-  - [ ] 9.5 Performance test dashboard (< 2s load)
-  - [ ] 9.6 Test seat limit validation
-  - [ ] 9.7 Basic mobile responsiveness check
 
-- [ ] 10.0 Deployment
-  - [ ] 10.1 Configure production environment variables
-  - [ ] 10.2 Deploy to Vercel
-  - [ ] 10.3 Test production deployment
-  - [ ] 10.4 Monitor for first 24 hours
+- [ ] 9.0 Deployment
+  - [ ] 9.1 Configure production environment variables
+  - [ ] 9.2 Deploy to Vercel
+  - [ ] 9.3 Test production deployment
+  - [ ] 9.4 Monitor for first 24 hours

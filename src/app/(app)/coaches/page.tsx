@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/badge'
 import { UserPlusIcon, MagnifyingGlassIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useOrganization } from '@/contexts/OrganizationContext'
-import { useCoaches, useAddCoach, useRemoveCoach } from '@/hooks/queries/useCoaches'
+import { useCoaches, useAddCoach, useRemoveCoach, useMemberCount } from '@/hooks/queries/useCoaches'
 import { Database } from '@/types/database.types'
 import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from '@/components/dialog'
 import { Field, Label } from '@/components/fieldset'
@@ -40,6 +40,12 @@ export default function CoachesPage() {
   
   // Remove coach mutation
   const removeCoachMutation = useRemoveCoach()
+
+  // Member count for seat limit validation
+  const { data: memberCount } = useMemberCount()
+
+  // Check if at seat limit
+  const isAtSeatLimit = organization?.seat_limit && memberCount ? memberCount >= organization.seat_limit : false
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
@@ -139,32 +145,56 @@ export default function CoachesPage() {
     })
   }
 
-  if (!organization) {
-    return (
-      <div>
-        <Heading>Coaches</Heading>
-        <div className="mt-8 text-zinc-500">Loading organization...</div>
-      </div>
-    )
-  }
+  const showSkeleton = !organization || isLoading
 
   return (
     <div>
       <div className="flex items-end justify-between gap-4">
-        <Heading>Coaches</Heading>
+        <div>
+          <Heading>Coaches</Heading>
+          {!showSkeleton && organization?.seat_limit && (
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              {memberCount || 0} of {organization.seat_limit} seats used
+              {isAtSeatLimit && (
+                <span className="ml-2 text-amber-600 dark:text-amber-400 font-medium">
+                  • Seat limit reached
+                </span>
+              )}
+            </p>
+          )}
+          {showSkeleton && (
+            <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              <div className="h-4 w-28 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+            </div>
+          )}
+        </div>
         <div className="flex gap-2">
-          <Button outline>
+          <Button outline disabled={showSkeleton} className={showSkeleton ? "pointer-events-none" : ""}>
             <ArrowDownTrayIcon className="h-4 w-4" />
             Import CSV
           </Button>
-          <Button outline>
+          <Button outline disabled={showSkeleton} className={showSkeleton ? "pointer-events-none" : ""}>
             <ArrowUpTrayIcon className="h-4 w-4" />
             Export CSV
           </Button>
-          <Button color="dark/zinc" onClick={openAddModal}>
-            <UserPlusIcon className="h-4 w-4" />
-            Add Coach
-          </Button>
+          {!showSkeleton && isAtSeatLimit ? (
+            <InfoTooltip content={`Your organization has reached its seat limit of ${organization?.seat_limit} members. Please upgrade your plan to add more coaches.`} position="bottom">
+              <Button color="dark/zinc" disabled className="cursor-not-allowed opacity-50">
+                <UserPlusIcon className="h-4 w-4" />
+                Add Coach
+              </Button>
+            </InfoTooltip>
+          ) : (
+            <Button 
+              color="dark/zinc" 
+              disabled={showSkeleton} 
+              onClick={showSkeleton ? undefined : openAddModal}
+              className={showSkeleton ? "pointer-events-none" : ""}
+            >
+              <UserPlusIcon className="h-4 w-4" />
+              Add Coach
+            </Button>
+          )}
         </div>
       </div>
 
@@ -178,14 +208,46 @@ export default function CoachesPage() {
               placeholder="Search by name or email..."
               value={searchTerm}
               onChange={handleSearch}
-              className="pl-10"
+              className={`pl-10 ${showSkeleton ? "pointer-events-none" : ""}`}
+              disabled={showSkeleton}
             />
           </div>
         </div>
 
         {/* Table */}
-        {isLoading ? (
-          <div className="text-zinc-500">Loading coaches...</div>
+        {showSkeleton ? (
+          <Table className="[--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
+            <TableHead>
+              <TableRow>
+                <TableHeader className="w-[40%]">Email</TableHeader>
+                <TableHeader className="w-[15%]">Role</TableHeader>
+                <TableHeader className="w-[15%]">Status</TableHeader>
+                <TableHeader className="w-[20%]">Joined</TableHeader>
+                <TableHeader className="w-[10%] text-right">Actions</TableHeader>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {Array.from({ length: 12 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-6 w-16 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-6 w-16 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse"></div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="h-8 w-8 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse ml-auto"></div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         ) : error ? (
           <div className="text-red-600">Error loading coaches: {(error as Error).message}</div>
         ) : (
@@ -193,11 +255,11 @@ export default function CoachesPage() {
             <Table className="[--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
               <TableHead>
                 <TableRow>
-                  <TableHeader>Email</TableHeader>
-                  <TableHeader>Role</TableHeader>
-                  <TableHeader>Status</TableHeader>
-                  <TableHeader>Joined</TableHeader>
-                  <TableHeader className="text-right">Actions</TableHeader>
+                  <TableHeader className="w-[40%]">Email</TableHeader>
+                  <TableHeader className="w-[15%]">Role</TableHeader>
+                  <TableHeader className="w-[15%]">Status</TableHeader>
+                  <TableHeader className="w-[20%]">Joined</TableHeader>
+                  <TableHeader className="w-[10%] text-right">Actions</TableHeader>
                 </TableRow>
               </TableHead>
               <TableBody>

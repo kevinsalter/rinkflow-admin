@@ -70,6 +70,8 @@ export function InfoTooltip({ content, className = '', children, position = 'top
           <div className={`pointer-events-none absolute z-20 ${
             position === 'left' 
               ? 'right-full top-1/2 mr-2 -translate-y-1/2' 
+              : position === 'bottom'
+              ? 'top-full left-1/2 mt-2 -translate-x-1/2'
               : 'bottom-full left-1/2 mb-2 -translate-x-1/2'
           }`}>
             <div 
@@ -106,6 +108,23 @@ export function InfoTooltip({ content, className = '', children, position = 'top
                 >
                   <path 
                     d="M4 4L0 0h8z" 
+                    fill="currentColor"
+                    fillOpacity="0.95"
+                  />
+                </svg>
+              )}
+              {position === 'bottom' && (
+                <svg 
+                  className={`
+                    absolute left-1/2 bottom-full -ml-1 -mb-px h-2 w-2
+                    text-white dark:text-zinc-900
+                    transition-all duration-200 ease-out
+                    ${isAnimating ? 'translate-y-0 opacity-100' : 'translate-y-0.5 opacity-0'}
+                  `}
+                  viewBox="0 0 8 4"
+                >
+                  <path 
+                    d="M4 0L8 4H0z" 
                     fill="currentColor"
                     fillOpacity="0.95"
                   />
