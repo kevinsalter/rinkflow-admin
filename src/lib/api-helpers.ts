@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase-client'
-import { createClient as createServerClient, createServiceRoleClient } from '@/lib/supabase-server'
+import { createClient as createServerClient } from '@/lib/supabase-server'
 
 /**
  * Helper to ensure organization_id is included in all queries
@@ -104,7 +104,7 @@ export function apiResponse<T>(
 /**
  * Helper to add organization_id to query parameters
  */
-export function withOrganizationId<T extends Record<string, any>>(
+export function withOrganizationId<T extends Record<string, unknown>>(
   params: T,
   organizationId: string | null
 ): T & { organization_id: string } {

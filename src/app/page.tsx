@@ -44,7 +44,7 @@ export default function Login() {
         // Successful login - middleware will handle redirect
         router.push('/dashboard')
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred')
       setIsLoading(false)
     }

@@ -5,7 +5,7 @@ import { useOrganization } from '@/contexts/OrganizationContext'
  * Custom hook that automatically includes organization_id in queries
  */
 export function useOrganizationQuery<TData = unknown, TError = unknown>(
-  queryKey: any[],
+  queryKey: unknown[],
   queryFn: (organizationId: string) => Promise<TData>,
   options?: Omit<UseQueryOptions<TData, TError>, 'queryKey' | 'queryFn'>
 ) {

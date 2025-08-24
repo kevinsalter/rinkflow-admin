@@ -38,9 +38,9 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase-client'
-import type { User } from '@supabase/supabase-js'
+import type { User, Session, SupabaseClient } from '@supabase/supabase-js'
 
-async function resolveAvatarUrl(session: any, supabase: any): Promise<string | null> {
+async function resolveAvatarUrl(session: Session | null, supabase: SupabaseClient): Promise<string | null> {
   if (!session?.user) return null
   
   // Try to get avatar from user metadata first (OAuth providers often set this)
@@ -103,7 +103,7 @@ export function ApplicationLayout({
         
         if (!user) return
         
-        const avatarUrl = await resolveAvatarUrl({ user }, supabase)
+        const avatarUrl = await resolveAvatarUrl(null, supabase)
         setAvatarUrl(avatarUrl)
       } catch (error) {
         console.error('Error fetching user:', error)

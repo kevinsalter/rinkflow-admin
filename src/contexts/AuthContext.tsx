@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, refreshIn)
 
     return () => clearTimeout(refreshTimer)
-  }, [session])
+  }, [session, refreshSession])
 
   const value = {
     user,

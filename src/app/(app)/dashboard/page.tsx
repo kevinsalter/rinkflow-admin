@@ -1,11 +1,9 @@
 'use client'
 
 import { Heading } from '@/components/heading'
-import { Text } from '@/components/text'
 import { Badge } from '@/components/badge'
-import { Divider } from '@/components/divider'
 import { InfoTooltip } from '@/components/info-tooltip'
-import { Skeleton, SkeletonCard } from '@/components/skeleton'
+import { Skeleton } from '@/components/skeleton'
 import { useOrganization } from '@/contexts/OrganizationContext'
 import { useOrganizationStats } from '@/hooks/queries/useOrganizationStats'
 import { useOrganizationStatistics } from '@/hooks/queries/useOrganizationStatistics'

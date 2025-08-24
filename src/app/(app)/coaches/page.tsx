@@ -7,7 +7,7 @@ import { Button } from '@/components/button'
 import { Input } from '@/components/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
 import { Badge } from '@/components/badge'
-import { UserPlusIcon, MagnifyingGlassIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, TrashIcon, XMarkIcon, DocumentArrowUpIcon } from '@heroicons/react/24/outline'
+import { UserPlusIcon, MagnifyingGlassIcon, ArrowUpTrayIcon, TrashIcon, DocumentArrowUpIcon } from '@heroicons/react/24/outline'
 import { useOrganization } from '@/contexts/OrganizationContext'
 import { useCoaches, useAddCoach, useRemoveCoach, useMemberCount, useBulkAddCoaches } from '@/hooks/queries/useCoaches'
 import { Database } from '@/types/database.types'
@@ -231,7 +231,7 @@ export default function CoachesPage() {
         let totalRows = 0
 
         // Process each row
-        results.data.forEach((row: any, index) => {
+        results.data.forEach((row: unknown, index) => {
           if (Array.isArray(row) && row.length > 0) {
             totalRows++
             const email = row[0]?.toString().trim().toLowerCase()
@@ -808,7 +808,7 @@ export default function CoachesPage() {
                       <ul className="mt-1 list-disc list-inside space-y-1">
                         <li>Each coach will be added to your organization</li>
                         <li>No automatic email will be sent - you must contact them directly</li>
-                        <li>They'll need to download the Rinkflow app and sign in</li>
+                        <li>They&apos;ll need to download the Rinkflow app and sign in</li>
                       </ul>
                     </div>
                   </div>

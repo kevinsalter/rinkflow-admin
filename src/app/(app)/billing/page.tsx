@@ -12,14 +12,11 @@ import { useOrganizationStats } from '@/hooks/queries/useOrganizationStats'
 import { useBilling } from '@/hooks/queries/useBilling'
 import { ArrowDownTrayIcon, DocumentTextIcon, CreditCardIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/20/solid'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-
 export default function BillingPage() {
   const { organization, organizationId, isLoading: orgLoading } = useOrganization()
   const { data: stats, isLoading: statsLoading } = useOrganizationStats()
   const { data: billingData, isLoading: billingLoading } = useBilling()
   const [isRedirecting, setIsRedirecting] = useState(false)
-  const router = useRouter()
 
   const handleManageBilling = async () => {
     if (!organizationId) return
@@ -45,9 +42,9 @@ export default function BillingPage() {
       } else {
         throw new Error(data.error || 'No URL returned')
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error redirecting to billing portal:', error)
-      alert(`Error: ${error.message || 'Failed to open billing portal'}`)
+      alert(`Error: ${error instanceof Error ? error.message : 'Failed to open billing portal'}`)
       setIsRedirecting(false)
     }
   }
@@ -224,7 +221,7 @@ export default function BillingPage() {
                       </svg>
                       <div className="text-sm text-amber-800 dark:text-amber-200">
                         <p className="font-medium">Approaching seat limit</p>
-                        <p className="mt-1">You're using {Math.round(((stats?.memberCount || 0) / organization.seat_limit) * 100)}% of your available seats. Consider upgrading your plan to add more seats.</p>
+                        <p className="mt-1">You&apos;re using {Math.round(((stats?.memberCount || 0) / organization.seat_limit) * 100)}% of your available seats. Consider upgrading your plan to add more seats.</p>
                       </div>
                     </div>
                   </div>

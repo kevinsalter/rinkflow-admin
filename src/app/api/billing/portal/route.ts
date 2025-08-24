@@ -51,11 +51,11 @@ export async function POST(request: NextRequest) {
       })
 
       return NextResponse.json({ url: session.url })
-    } catch (stripeError: any) {
+    } catch (stripeError) {
       console.error('Stripe error creating billing portal session:', stripeError)
       
       // Check if it's a configuration error
-      if (stripeError.message?.includes('portal configuration')) {
+      if (stripeError instanceof Error && stripeError.message?.includes('portal configuration')) {
         return NextResponse.json(
           { error: 'Stripe Customer Portal is not configured. Please configure it in your Stripe Dashboard.' },
           { status: 400 }
@@ -63,14 +63,14 @@ export async function POST(request: NextRequest) {
       }
       
       return NextResponse.json(
-        { error: stripeError.message || 'Failed to create billing portal session' },
+        { error: stripeError instanceof Error ? stripeError.message : 'Failed to create billing portal session' },
         { status: 500 }
       )
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in billing portal route:', error)
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     )
   }

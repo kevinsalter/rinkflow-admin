@@ -37,7 +37,7 @@ export function QueryErrorBoundary({ children }: QueryErrorBoundaryProps) {
                 Failed to load data
               </Heading>
               <Text className="mb-6 max-w-md text-zinc-600 dark:text-zinc-400">
-                We couldn't fetch the data you requested. This might be a temporary issue. Please
+                We couldn&apos;t fetch the data you requested. This might be a temporary issue. Please
                 check your connection and try again.
               </Text>
               <div className="flex gap-3">

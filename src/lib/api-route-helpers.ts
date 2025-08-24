@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { createClient, createServiceRoleClient } from '@/lib/supabase-server'
+import { createClient } from '@/lib/supabase-server'
 import { apiResponse } from './api-helpers'
 
 interface AuthenticatedRequest extends NextRequest {

@@ -1,6 +1,7 @@
 ### Commit Guidelines
 
 run `bunx tsc --noEmit`
+run `bunx run lint`
 run `git add -A && git status`
 write a commit message and make the commit
 

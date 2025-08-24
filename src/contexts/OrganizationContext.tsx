@@ -41,12 +41,14 @@ async function fetchUserOrganization() {
   }
 
   // Get user's organization membership - first try by user_id
-  let { data: membership, error: memberError } = await supabase
+  const { data: membershipByUserId, error: memberError } = await supabase
     .from('organization_members')
     .select('organization_id, role')
     .eq('user_id', user.id)
     .is('removed_at', null)
     .single()
+
+  let membership = membershipByUserId
 
   // If not found by user_id, try by email (for invited users who haven't joined yet)
   if ((memberError || !membership) && user.email) {
@@ -73,7 +75,7 @@ async function fetchUserOrganization() {
           .eq('email', user.email)
           .eq('organization_id', emailMembership.organization_id)
           .is('removed_at', null)
-      } catch (updateError) {
+      } catch {
         // If update fails, we still have membership data, so continue
         console.log('Could not update membership record, but user can still access organization')
       }

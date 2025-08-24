@@ -8,6 +8,20 @@ import { useAuditLog } from '@/hooks/queries/useAuditLog'
 import { useOrganization } from '@/contexts/OrganizationContext'
 import { formatDistanceToNow } from 'date-fns'
 
+interface AuditEvent {
+  id: string
+  timestamp: string
+  action: string
+  details: string
+  user_email: string | null
+}
+
+interface AuditLogPage {
+  events: AuditEvent[]
+  nextCursor: string | null
+  hasMore: boolean
+}
+
 export default function AuditLogPage() {
   const { organization } = useOrganization()
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useAuditLog({
@@ -84,14 +98,14 @@ export default function AuditLogPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data?.pages.flatMap((page: any) => page.events).length === 0 ? (
+              {data?.pages.flatMap((page: AuditLogPage) => page.events).length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-zinc-500">
                     No audit events found
                   </TableCell>
                 </TableRow>
               ) : (
-                data?.pages.flatMap((page: any) => page.events).map((event: any) => (
+                data?.pages.flatMap((page: AuditLogPage) => page.events).map((event: AuditEvent) => (
                   <TableRow key={event.id}>
                     <TableCell className="text-zinc-500 text-sm">
                       {formatRelativeTime(event.timestamp)}

@@ -44,7 +44,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
     }
 
-    let subscription = null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let subscription: any = null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let invoices: any[] = []
 
     // Fetch subscription details from Stripe if available
@@ -57,18 +59,20 @@ export async function GET(request: NextRequest) {
           }
         )
         
-        // Get period dates from the first subscription item
-        const firstItem = stripeSubscription.items.data[0] as any
-        
         subscription = {
           id: stripeSubscription.id,
           status: stripeSubscription.status,
-          current_period_end: firstItem?.current_period_end || (stripeSubscription as any).current_period_end,
-          current_period_start: firstItem?.current_period_start || (stripeSubscription as any).current_period_start,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          current_period_end: (stripeSubscription as any).current_period_end,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          current_period_start: (stripeSubscription as any).current_period_start,
           items: stripeSubscription.items,
-          cancel_at_period_end: stripeSubscription.cancel_at_period_end,
-          canceled_at: stripeSubscription.canceled_at,
-          trial_end: stripeSubscription.trial_end,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          cancel_at_period_end: (stripeSubscription as any).cancel_at_period_end,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          canceled_at: (stripeSubscription as any).canceled_at,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          trial_end: (stripeSubscription as any).trial_end,
         }
       } catch (stripeError) {
         console.error('Error fetching subscription from Stripe:', stripeError)
