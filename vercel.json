@@ -1,5 +1,4 @@
 {
-  "domains": ["admin.rinkflow.com"],
   "rewrites": [
     {
       "source": "/(.*)",
