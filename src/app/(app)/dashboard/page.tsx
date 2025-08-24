@@ -18,41 +18,44 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div>
-        <Heading>Dashboard</Heading>
+        <div className="mb-8">
+          <Heading>Dashboard</Heading>
+          <div className="mt-6 flex items-center gap-3">
+            <Skeleton className="h-9 w-48" />
+            <Skeleton className="h-6 w-24 rounded-full" />
+          </div>
+        </div>
         
-        {/* Organization Info Skeleton */}
-        <div className="mt-8">
-          <div className="rounded-lg border border-zinc-950/10 dark:border-white/10 p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <Skeleton className="h-7 w-48" />
-                <div className="mt-2 flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-5 w-24 rounded-full" />
-                  </div>
-                </div>
-              </div>
+        {/* Metrics Grid Skeleton */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Total Coaches Skeleton */}
+          <div className="rounded-lg border border-zinc-950/5 dark:border-white/5 p-4">
+            <Skeleton className="h-4 w-24" />
+            <div className="mt-2 flex items-baseline gap-2">
+              <Skeleton className="h-9 w-16" />
+              <Skeleton className="h-4 w-12" />
             </div>
+          </div>
 
-            <Divider className="my-6" />
+          {/* Seat Usage Skeleton */}
+          <div className="rounded-lg border border-zinc-950/5 dark:border-white/5 p-4">
+            <Skeleton className="h-4 w-20" />
+            <div className="mt-2 flex items-baseline gap-2">
+              <Skeleton className="h-9 w-16" />
+              <Skeleton className="h-4 w-16" />
+            </div>
+            <div className="mt-3">
+              <Skeleton className="h-2 w-full rounded-full" />
+              <Skeleton className="mt-1 h-3 w-20" />
+            </div>
+          </div>
 
-            {/* Metrics Grid Skeleton */}
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-lg border border-zinc-950/5 dark:border-white/5 p-4">
-                  <Skeleton className="h-4 w-24" />
-                  <div className="mt-2">
-                    <Skeleton className="h-8 w-16" />
-                  </div>
-                  {i === 2 && (
-                    <div className="mt-3">
-                      <Skeleton className="h-2 w-full rounded-full" />
-                      <Skeleton className="mt-1 h-3 w-20" />
-                    </div>
-                  )}
-                </div>
-              ))}
+          {/* Active Members Skeleton */}
+          <div className="rounded-lg border border-zinc-950/5 dark:border-white/5 p-4">
+            <Skeleton className="h-4 w-28" />
+            <div className="mt-2 flex items-baseline gap-2">
+              <Skeleton className="h-9 w-16" />
+              <Skeleton className="h-4 w-16" />
             </div>
           </div>
         </div>
@@ -62,7 +65,15 @@ export default function Dashboard() {
           <Skeleton className="h-6 w-32" />
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <SkeletonCard key={i} />
+              <div key={i} className="rounded-lg border border-zinc-950/10 dark:border-white/10 p-4">
+                <div className="flex items-center gap-1.5">
+                  <Skeleton className="h-4 w-32" />
+                </div>
+                <div className="mt-2">
+                  <Skeleton className="h-7 w-12" />
+                </div>
+                <Skeleton className="mt-1 h-3 w-20" />
+              </div>
             ))}
           </div>
         </div>

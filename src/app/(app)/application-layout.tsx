@@ -78,15 +78,18 @@ export function ApplicationLayout({
         const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
         
+        if (!user) return
+        
         // Try to get avatar from user metadata first (OAuth providers often set this)
-        if (user?.user_metadata?.avatar_url) {
-          setAvatarUrl(user.user_metadata.avatar_url)
-        } else if (user?.user_metadata?.picture) {
-          setAvatarUrl(user.user_metadata.picture)
+        let foundAvatar = null
+        if (user.user_metadata?.avatar_url) {
+          foundAvatar = user.user_metadata.avatar_url
+        } else if (user.user_metadata?.picture) {
+          foundAvatar = user.user_metadata.picture
         }
         
-        // Then try to fetch from user_profiles table
-        if (user && !avatarUrl) {
+        // If no avatar in metadata, try to fetch from user_profiles table
+        if (!foundAvatar) {
           const { data: profile, error } = await supabase
             .from('user_profiles')
             .select('avatar_url, social_avatar_url')
@@ -94,9 +97,11 @@ export function ApplicationLayout({
             .maybeSingle()
           
           if (!error && profile) {
-            setAvatarUrl(profile.avatar_url || profile.social_avatar_url || null)
+            foundAvatar = profile.avatar_url || profile.social_avatar_url || null
           }
         }
+        
+        setAvatarUrl(foundAvatar)
       } catch (error) {
         console.error('Error fetching user:', error)
       }
@@ -104,17 +109,36 @@ export function ApplicationLayout({
     getUser()
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
       
-      // Set avatar from user metadata
-      if (session?.user?.user_metadata?.avatar_url) {
-        setAvatarUrl(session.user.user_metadata.avatar_url)
-      } else if (session?.user?.user_metadata?.picture) {
-        setAvatarUrl(session.user.user_metadata.picture)
-      } else {
+      if (!session?.user) {
         setAvatarUrl(null)
+        return
       }
+      
+      // Set avatar from user metadata
+      let foundAvatar = null
+      if (session.user.user_metadata?.avatar_url) {
+        foundAvatar = session.user.user_metadata.avatar_url
+      } else if (session.user.user_metadata?.picture) {
+        foundAvatar = session.user.user_metadata.picture
+      }
+      
+      // If no avatar in metadata, try to fetch from user_profiles table
+      if (!foundAvatar) {
+        const { data: profile, error } = await supabase
+          .from('user_profiles')
+          .select('avatar_url, social_avatar_url')
+          .eq('id', session.user.id)
+          .maybeSingle()
+        
+        if (!error && profile) {
+          foundAvatar = profile.avatar_url || profile.social_avatar_url || null
+        }
+      }
+      
+      setAvatarUrl(foundAvatar)
     })
 
     return () => subscription.unsubscribe()
@@ -142,11 +166,13 @@ export function ApplicationLayout({
           <NavbarSection>
             <Dropdown>
               <DropdownButton as={NavbarItem}>
-                <Avatar 
-                  src={avatarUrl} 
-                  initials={user?.email ? getInitials(user.email) : 'U'}
-                  square 
-                />
+                <div className="size-10">
+                  <Avatar 
+                    src={avatarUrl} 
+                    initials={user?.email ? getInitials(user.email) : 'U'}
+                    square 
+                  />
+                </div>
               </DropdownButton>
               <AccountDropdownMenu anchor="bottom end" onSignOut={handleSignOut} />
             </Dropdown>

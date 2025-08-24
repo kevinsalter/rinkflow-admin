@@ -93,7 +93,7 @@ export function OrganizationProvider({ children }: OrganizationProviderProps) {
 
   const {
     data,
-    isLoading,
+    isLoading: queryLoading,
     error,
     refetch,
   } = useQuery({
@@ -103,6 +103,9 @@ export function OrganizationProvider({ children }: OrganizationProviderProps) {
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   })
+
+  // Show loading state while we're fetching user or organization data
+  const isLoading = !userId || queryLoading
 
   const value: OrganizationContextType = {
     organization: data?.organization || null,

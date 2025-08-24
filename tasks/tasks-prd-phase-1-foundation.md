@@ -101,10 +101,10 @@
   - [x] 4.8 Add user's avatar is desktop and mobile views
 
 - [ ] 5.0 Billing Page (Read-Only)
-  - [ ] 5.1 Create billing page `/src/app/(app)/billing/page.tsx`
-  - [ ] 5.2 Display current subscription plan details
-  - [ ] 5.3 Show seat usage (used vs available)
-  - [ ] 5.4 Implement `useBilling` hook for Stripe data
+  - [x] 5.1 Create billing page `/src/app/(app)/billing/page.tsx`
+  - [x] 5.2 Display current subscription plan details
+  - [x] 5.3 Show seat usage (used vs available)
+  - [x] 5.4 Implement `useBilling` hook for Stripe data
   - [ ] 5.5 Display recent invoices in a table
   - [ ] 5.6 Add Stripe billing portal redirect button
 
