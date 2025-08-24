@@ -40,6 +40,33 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import type { User } from '@supabase/supabase-js'
 
+async function resolveAvatarUrl(session: any, supabase: any): Promise<string | null> {
+  if (!session?.user) return null
+  
+  // Try to get avatar from user metadata first (OAuth providers often set this)
+  let foundAvatar = null
+  if (session.user.user_metadata?.avatar_url) {
+    foundAvatar = session.user.user_metadata.avatar_url
+  } else if (session.user.user_metadata?.picture) {
+    foundAvatar = session.user.user_metadata.picture
+  }
+  
+  // If no avatar in metadata, try to fetch from user_profiles table
+  if (!foundAvatar) {
+    const { data: profile, error } = await supabase
+      .from('user_profiles')
+      .select('avatar_url, social_avatar_url')
+      .eq('id', session.user.id)
+      .maybeSingle()
+    
+    if (!error && profile) {
+      foundAvatar = profile.avatar_url || profile.social_avatar_url || null
+    }
+  }
+  
+  return foundAvatar
+}
+
 function AccountDropdownMenu({ anchor, onSignOut }: { anchor: 'top start' | 'bottom end', onSignOut: () => void }) {
   return (
     <DropdownMenu className="min-w-64" anchor={anchor}>
@@ -76,28 +103,8 @@ export function ApplicationLayout({
         
         if (!user) return
         
-        // Try to get avatar from user metadata first (OAuth providers often set this)
-        let foundAvatar = null
-        if (user.user_metadata?.avatar_url) {
-          foundAvatar = user.user_metadata.avatar_url
-        } else if (user.user_metadata?.picture) {
-          foundAvatar = user.user_metadata.picture
-        }
-        
-        // If no avatar in metadata, try to fetch from user_profiles table
-        if (!foundAvatar) {
-          const { data: profile, error } = await supabase
-            .from('user_profiles')
-            .select('avatar_url, social_avatar_url')
-            .eq('id', user.id)
-            .maybeSingle()
-          
-          if (!error && profile) {
-            foundAvatar = profile.avatar_url || profile.social_avatar_url || null
-          }
-        }
-        
-        setAvatarUrl(foundAvatar)
+        const avatarUrl = await resolveAvatarUrl({ user }, supabase)
+        setAvatarUrl(avatarUrl)
       } catch (error) {
         console.error('Error fetching user:', error)
       }
@@ -113,28 +120,8 @@ export function ApplicationLayout({
         return
       }
       
-      // Set avatar from user metadata
-      let foundAvatar = null
-      if (session.user.user_metadata?.avatar_url) {
-        foundAvatar = session.user.user_metadata.avatar_url
-      } else if (session.user.user_metadata?.picture) {
-        foundAvatar = session.user.user_metadata.picture
-      }
-      
-      // If no avatar in metadata, try to fetch from user_profiles table
-      if (!foundAvatar) {
-        const { data: profile, error } = await supabase
-          .from('user_profiles')
-          .select('avatar_url, social_avatar_url')
-          .eq('id', session.user.id)
-          .maybeSingle()
-        
-        if (!error && profile) {
-          foundAvatar = profile.avatar_url || profile.social_avatar_url || null
-        }
-      }
-      
-      setAvatarUrl(foundAvatar)
+      const avatarUrl = await resolveAvatarUrl(session, supabase)
+      setAvatarUrl(avatarUrl)
     })
 
     return () => subscription.unsubscribe()
@@ -202,7 +189,7 @@ export function ApplicationLayout({
                 <CreditCardIcon />
                 <SidebarLabel>Billing</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/settings" current={pathname.startsWith('/settings')}>
+              <SidebarItem href="/audit-log" current={pathname.startsWith('/audit-log')}>
                 <ClipboardDocumentListIcon />
                 <SidebarLabel>Audit Log</SidebarLabel>
               </SidebarItem>

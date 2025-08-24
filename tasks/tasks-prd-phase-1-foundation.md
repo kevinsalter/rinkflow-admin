@@ -19,7 +19,7 @@
 - `/src/app/(app)/dashboard/page.tsx` - Dashboard with organization metrics and info
 - `/src/app/(app)/coaches/page.tsx` - Coaches management with CSV operations
 - `/src/app/(app)/billing/page.tsx` - Subscription and billing management
-- `/src/app/(app)/settings/page.tsx` - Audit log display
+- `/src/app/(app)/audit-log/page.tsx` - Audit log display
 
 ### API Routes
 - `/src/app/api/organizations/route.ts` - Organization CRUD operations
@@ -145,7 +145,7 @@
   - [x] 7.7 Create test CSVs and test with large imports
 
 - [x] 8.0 Audit Log Page (Read-Only)
-  - [x] 8.1 Create settings page `/src/app/(app)/settings/page.tsx`
+  - [x] 8.1 Create audit log page `/src/app/(app)/audit-log/page.tsx`
   - [x] 8.2 Implement simple audit log display showing recent actions
   - [x] 8.3 Add pagination for audit entries
   - [x] 8.4 Include timestamp, user, and action type

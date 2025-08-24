@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: 'View recent organizational activities and changes',
 }
 
-export default function SettingsLayout({
+export default function AuditLogLayout({
   children,
 }: {
   children: React.ReactNode

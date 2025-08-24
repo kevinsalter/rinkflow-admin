@@ -8,7 +8,7 @@ import { useAuditLog } from '@/hooks/queries/useAuditLog'
 import { useOrganization } from '@/contexts/OrganizationContext'
 import { formatDistanceToNow } from 'date-fns'
 
-export default function SettingsPage() {
+export default function AuditLogPage() {
   const { organization } = useOrganization()
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useAuditLog({
     pageSize: 25

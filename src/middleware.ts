@@ -40,7 +40,7 @@ export async function middleware(request: NextRequest) {
   const isAppRoute = url.pathname.startsWith('/dashboard') || 
                      url.pathname.startsWith('/coaches') ||
                      url.pathname.startsWith('/billing') ||
-                     url.pathname.startsWith('/settings') ||
+                     url.pathname.startsWith('/audit-log') ||
                      url.pathname.startsWith('/organization') ||
                      url.pathname.startsWith('/changelog')
 
@@ -74,7 +74,7 @@ export async function middleware(request: NextRequest) {
 
     // Check if user has admin/owner role for admin-only routes
     const isAdminRoute = url.pathname.startsWith('/billing') || 
-                        url.pathname.startsWith('/settings') ||
+                        url.pathname.startsWith('/audit-log') ||
                         url.pathname.startsWith('/organization')
     
     if (isAdminRoute && membership.role !== 'admin' && membership.role !== 'owner') {

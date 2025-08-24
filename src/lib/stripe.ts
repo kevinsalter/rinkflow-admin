@@ -1,3 +1,8 @@
+// Prevent this module from being imported in browser/client contexts
+if (typeof window !== 'undefined') {
+  throw new Error('Do not import src/lib/stripe from client code — server-side only')
+}
+
 import Stripe from 'stripe'
 
 if (!process.env.STRIPE_SECRET_KEY) {
