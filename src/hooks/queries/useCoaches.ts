@@ -31,6 +31,7 @@ export function useCoaches({ searchTerm = '', page = 1, pageSize = 50 }: UseCoac
         .select('*', { count: 'exact' })
         .eq('organization_id', organization.id)
         .is('removed_at', null)
+        .order('joined_at', { ascending: true, nullsFirst: true })
         .order('created_at', { ascending: false })
 
       // Apply search filter
