@@ -28,12 +28,14 @@
 - `/src/app/api/coaches/export/route.ts` - CSV export handler
 - `/src/app/api/billing/route.ts` - Stripe integration endpoints
 - `/src/app/api/stripe/webhook/route.ts` - Stripe webhook handler
+- `/src/app/api/audit-log/route.ts` - Audit log API with pagination
 
 ### React Query Hooks
 - `/src/hooks/queries/useOrganizationStats.ts` - Organization member and coach counts
 - `/src/hooks/queries/useOrganizationStatistics.ts` - Platform usage stats from materialized view
 - `/src/hooks/queries/useCoaches.ts` - Coaches list and mutations
 - `/src/hooks/queries/useBilling.ts` - Subscription and invoice queries
+- `/src/hooks/queries/useAuditLog.ts` - Infinite query for audit log with pagination
 
 ### Notes
 
@@ -129,13 +131,12 @@
   - [x] 7.6 Implement `/src/app/api/coaches/export/route.ts` endpoint
   - [x] 7.7 Create test CSVs and test with large imports
 
-- [ ] 8.0 Audit Log Page (Read-Only)
-  - [ ] 8.1 Create settings page `/src/app/(app)/settings/page.tsx`
-  - [ ] 8.2 Implement simple audit log display showing recent actions
-  - [ ] 8.3 Add pagination for audit entries
-  - [ ] 8.4 Include timestamp, user, and action type
-  - [ ] 8.5 Add loading and error states
-
+- [x] 8.0 Audit Log Page (Read-Only)
+  - [x] 8.1 Create settings page `/src/app/(app)/settings/page.tsx`
+  - [x] 8.2 Implement simple audit log display showing recent actions
+  - [x] 8.3 Add pagination for audit entries
+  - [x] 8.4 Include timestamp, user, and action type
+  - [x] 8.5 Add loading and error states
 
 - [ ] 9.0 Deployment
   - [ ] 9.1 Configure production environment variables
