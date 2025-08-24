@@ -10,20 +10,16 @@
 - `.env.example` - Example environment variables for documentation
 
 ### Authentication Pages
-- `/src/app/page.tsx` - Root page that redirects to login or dashboard
-- `/src/app/(auth)/layout.tsx` - Auth layout without sidebar
-- `/src/app/(auth)/login/page.tsx` - Login page with Supabase authentication
-- `/src/app/(auth)/forgot-password/page.tsx` - Forgot password page (public)
-- `/src/components/LoginForm.tsx` - Login form component using Catalyst UI
+- `/src/app/page.tsx` - Root page with login form and auth redirect logic
+- `/src/app/(auth)/login/page.tsx` - Login page that redirects to root for consistency
+- `/src/app/not-found.tsx` - 404 page with link back to home
 
 ### Admin Portal Pages
 - `/src/app/(app)/layout.tsx` - App layout with sidebar and protection
-- `/src/app/(app)/dashboard/page.tsx` - Dashboard with organization metrics
+- `/src/app/(app)/dashboard/page.tsx` - Dashboard with organization metrics and info
 - `/src/app/(app)/coaches/page.tsx` - Coaches management with CSV operations
-- `/src/app/(app)/organization-settings/page.tsx` - Organization configuration
 - `/src/app/(app)/billing/page.tsx` - Subscription and billing management
-- `/src/app/(app)/analytics/page.tsx` - Usage statistics and reports
-- `/src/app/(app)/settings/page.tsx` - Admin profile and preferences
+- `/src/app/(app)/audit-log/page.tsx` - Audit log display
 
 ### API Routes
 - `/src/app/api/organizations/route.ts` - Organization CRUD operations
@@ -32,12 +28,19 @@
 - `/src/app/api/coaches/export/route.ts` - CSV export handler
 - `/src/app/api/billing/route.ts` - Stripe integration endpoints
 - `/src/app/api/stripe/webhook/route.ts` - Stripe webhook handler
+- `/src/app/api/audit-log/route.ts` - Audit log API with pagination
 
 ### React Query Hooks
-- `/src/hooks/queries/useOrganization.ts` - Organization data fetching
+- `/src/hooks/queries/useOrganizationStats.ts` - Organization member and coach counts
+- `/src/hooks/queries/useOrganizationStatistics.ts` - Platform usage stats from materialized view
 - `/src/hooks/queries/useCoaches.ts` - Coaches list and mutations
 - `/src/hooks/queries/useBilling.ts` - Subscription and invoice queries
-- `/src/hooks/queries/useAnalytics.ts` - Analytics data fetching
+- `/src/hooks/queries/useAuditLog.ts` - Infinite query for audit log with pagination
+
+### Deployment Configuration
+- `/vercel.json` - Vercel deployment configuration with custom domain, security headers, and function settings
+- `/DEPLOYMENT.md` - Comprehensive deployment guide for admin.rinkflow.com subdomain
+- `/.env.production` - Production environment variables template
 
 ### Notes
 
@@ -49,160 +52,117 @@
 - Service Role Key must only be used server-side for admin operations, never exposed in client code
 - Use Catalyst UI components wherever possible to maintain consistency
 
+### Phase 2 Considerations
+
+- **Materialized View Refresh Strategy**: The `organization_statistics_mv` materialized view needs a refresh strategy. Options:
+  - Set up pg_cron for scheduled refreshes (hourly/daily)
+  - Trigger refresh after significant data changes (member additions, content creation)
+  - Add manual refresh button in admin UI
+  - Current implementation has fallback to direct queries, so this is not blocking
+
+### Deployment Notes (admin.rinkflow.com)
+
+**Subdomain-specific requirements:**
+
+- **Supabase Auth**: Update Site URL to `https://admin.rinkflow.com` and add to redirect URLs list
+- **CORS Configuration**: Ensure Supabase accepts requests from admin.rinkflow.com origin
+- **Cookie Domain**: Verify auth cookies work across .rinkflow.com domain (should work automatically)
+- **DNS Setup**: CNAME record `admin.rinkflow.com` pointing to Vercel deployment
+- **SSL Certificate**: Vercel handles SSL automatically for custom domains
+- **Environment Variables**: Same as development but with production Supabase/Stripe keys
+- **Security Headers**: Consider CSP, HSTS for production security
+- **Monitoring**: Set up error tracking and performance monitoring for subdomain
+
 ## Tasks
 
-- [ ] 1.0 Environment Setup & Core Configuration
-  - [ ] 1.1 Create `.env.local` with Supabase URL, anon key, service role key, and Stripe keys
-  - [ ] 1.2 Create `.env.example` with placeholder values for documentation
-  - [ ] 1.3 Install core dependencies: `@supabase/supabase-js`, `@tanstack/react-query`, `stripe`
-  - [ ] 1.4 Install utility dependencies: `react-hook-form`, `papaparse`, `date-fns`
-  - [ ] 1.5 Copy database types from main Rinkflow codebase `src/types/database.types.ts`
-  - [ ] 1.6 Create Supabase client for client-side operations in `/src/lib/supabase-client.ts`
-  - [ ] 1.7 Create Supabase client for server-side operations in `/src/lib/supabase-server.ts`
-  - [ ] 1.8 Configure Stripe client in `/src/lib/stripe.ts` for server-side use only
-  - [ ] 1.9 Set up React Query provider in `/src/app/providers.tsx`
-  - [ ] 1.10 Configure error boundaries for data fetching failures
+- [x] 1.0 Environment Setup & Core Configuration
+  - [x] 1.1 Create `.env.local` with Supabase URL, anon key, service role key, and Stripe keys
+  - [x] 1.2 Create `.env.example` with placeholder values for documentation
+  - [x] 1.3 Install core dependencies: `@supabase/supabase-js`, `@tanstack/react-query`, `stripe`
+  - [x] 1.4 Install utility dependencies: `react-hook-form`, `papaparse`, `date-fns`
+  - [x] 1.5 Copy database types from main Rinkflow codebase `src/types/database.types.ts`
+  - [x] 1.6 Create Supabase client for client-side operations in `/src/lib/supabase-client.ts` making sure you follow the official guide https://supabase.com/docs/guides/auth/server-side/nextjs
+  - [x] 1.7 Create Supabase client for server-side operations in `/src/lib/supabase-server.ts`  making sure you follow the official guide https://supabase.com/docs/guides/auth/server-side/nextjs
+  - [x] 1.8 Configure Stripe client in `/src/lib/stripe.ts` for server-side use only
+  - [x] 1.9 Set up React Query provider in `/src/app/providers.tsx`
+  - [x] 1.10 Configure error boundaries for data fetching failures
+  - [x] 1.11 Create organization context provider that uses fetchUserOrganization
+  - [x] 1.12 Add organization_id to all API calls and queries
 
-- [ ] 2.0 Authentication System Implementation
-  - [ ] 2.1 Create AuthContext in `/src/contexts/AuthContext.tsx` for auth state management
-  - [ ] 2.2 Implement middleware in `/src/middleware.ts` for route protection
-  - [ ] 2.3 Create admin email whitelist in `/src/lib/auth.ts`
-  - [ ] 2.4 Update root page `/src/app/page.tsx` to redirect based on auth status
-  - [ ] 2.5 Implement login page `/src/app/(auth)/login/page.tsx` with email/password
-  - [ ] 2.6 Add Google OAuth button and flow to login page
-  - [ ] 2.7 Implement forgot password page `/src/app/(auth)/forgot-password/page.tsx`
-  - [ ] 2.8 Add logout functionality to app layout
-  - [ ] 2.9 Configure 7-day session persistence with refresh
-  - [ ] 2.10 Test all auth flows (login, OAuth, forgot password, logout)
+- [ ] 2.0 Authentication System Implementation (read the docs first https://supabase.com/docs/guides/auth/server-side/nextjs)
+  - [x] 2.1 Create AuthContext in `/src/contexts/AuthContext.tsx` for auth state management
+  - [x] 2.2 Implement middleware in `/src/middleware.ts` for route protection (using actual organization roles instead of whitelist)
+  - [x] 2.3 make sure the "Rinkflow Admin" title in the top navbar is clickable, and redirects to /
+  - [x] 2.4 Update root page `/src/app/page.tsx` to redirect based on auth status
+  - [x] 2.5 Implement login page `/src/app/(auth)/login/page.tsx` with email/password
+  - [x] 2.6 make sure the bottom left user avatar uses the user's avatar or falls back to a placeholder image, and make sure it's the logged in user's email that displays
+  - [x] 2.7 Add logout functionality to app layout
+  - [x] 2.8 Configure 7-day session persistence with refresh
+  - [x] 2.9 Test all auth flows (login, logout) - Testing checklist created
 
-- [ ] 3.0 Navigation Structure & Branding
-  - [ ] 3.1 Update `/src/app/(app)/layout.tsx` with sidebar navigation menu
-  - [ ] 3.2 Create all page route files (can be placeholders initially)
-  - [ ] 3.3 Replace Catalyst logo with Rinkflow logo in all locations
-  - [ ] 3.4 Update favicon and app icons
-  - [ ] 3.5 Update page titles and metadata to reference Rinkflow
-  - [ ] 3.6 Remove all demo data from existing pages
-  - [ ] 3.7 Clean up unused Catalyst demo components
-  - [ ] 3.8 Configure navigation items (Dashboard, Coaches, Settings, etc.)
+- [x] 3.0 Navigation Structure & Branding (this should mostly be done from the work in @tasks/completed/tasks-cleanup-routes.md, but double check)
+  - [x] 3.1 Update `/src/app/(app)/layout.tsx` with sidebar navigation menu
+  - [x] 3.2 Create all page route files (can be placeholders initially)
+  - [x] 3.3 Replace Catalyst logo with Rinkflow logo in all locations
+  - [x] 3.4 Update page titles and metadata to reference Rinkflow
+  - [x] 3.5 Remove all demo data from existing pages
+  - [x] 3.6 Clean up unused Catalyst demo components
+  - [x] 3.7 Configure navigation items (Dashboard, Coaches, Settings, etc.)
 
-- [ ] 4.0 Dashboard Page Implementation
-  - [ ] 4.1 Create dashboard page `/src/app/(app)/dashboard/page.tsx`
-  - [ ] 4.2 Implement organization overview cards (total coaches, subscription status)
-  - [ ] 4.3 Create `useOrganization` hook for fetching org data
-  - [ ] 4.4 Add recent activity feed component (if activity data available)
-  - [ ] 4.5 Create quick action cards linking to common tasks
-  - [ ] 4.6 Implement auto-refresh with React Query
-  - [ ] 4.7 Add loading skeletons for all data sections
-  - [ ] 4.8 Implement error states with retry options
-  - [ ] 4.9 Make responsive for tablet screens
-  - [ ] 4.10 Test page load performance (< 2 seconds)
+- [x] 4.0 Dashboard Page (includes Organization Info)
+  - [x] 4.0a read the Catalyst docs https://catalyst.tailwindui.com/docs
+  - [x] 4.1 Create dashboard page `/src/app/(app)/dashboard/page.tsx`
+  - [x] 4.2 Display organization name and subscription status
+  - [x] 4.3 Show member count vs seat limit with progress indicator
+  - [x] 4.4 Implement simple metric cards (total coaches, seat usage)
+  - [x] 4.5 Add basic usage stats if available
+  - [x] 4.6 Implement auto-refresh with React Query
+  - [x] 4.7 Add loading skeletons and error states
+  - [x] 4.8 Add user's avatar is desktop and mobile views
 
-- [ ] 5.0 Organization Settings Page (Read-Only)
-  - [ ] 5.1 Create organization settings page `/src/app/(app)/organization-settings/page.tsx`
-  - [ ] 5.2 Display organization name and details
-  - [ ] 5.3 Show member count vs seat limit with progress indicator
-  - [ ] 5.4 Display current subscription plan and status
-  - [ ] 5.5 List all organization administrators
-  - [ ] 5.6 Add placeholder for future edit functionality
-  - [ ] 5.7 Implement loading and error states
+- [x] 5.0 Billing Page (Read-Only)
+  - [x] 5.1 Create billing page `/src/app/(app)/billing/page.tsx`
+  - [x] 5.2 Display current subscription plan details
+  - [x] 5.3 Show seat usage (used vs available)
+  - [x] 5.4 Implement `useBilling` hook for Stripe data
+  - [x] 5.5 Display recent invoices in a table
+  - [x] 5.6 Add Stripe billing portal redirect button
 
-- [ ] 6.0 Analytics Page
-  - [ ] 6.1 Create analytics page `/src/app/(app)/analytics/page.tsx`
-  - [ ] 6.2 Implement usage metrics cards (total drills, practice plans)
-  - [ ] 6.3 Add coach activity chart using Tremor components
-  - [ ] 6.4 Display content creation trends over time
-  - [ ] 6.5 Create date range selector component
-  - [ ] 6.6 Implement `useAnalytics` hook for data fetching
-  - [ ] 6.7 Add CSV export button (implementation in later phase)
-  - [ ] 6.8 Test with various data ranges
+- [ ] 6.0 Coaches Management Page (Simplified)
+  - [x] 6.1 Create coaches page `/src/app/(app)/coaches/page.tsx`
+  - [x] 6.2 Implement coaches list with Catalyst table component
+  - [x] 6.3 Add pagination (25 coaches per page)
+  - [x] 6.4 Create search input for email filtering
+  - [x] 6.5 Implement `useCoaches` hook with React Query
+  - [x] 6.6 Create add coach modal with email input
+  - [x] 6.7 Create API route for coach operations with service role
+  - [x] 6.8 Implement remove coach with confirmation dialog
+  - [x] 6.9 Add seat limit validation before adding
+  - [x] 6.10 Add loading skeleton for the page
 
-- [ ] 7.0 Billing Page (Mostly Read-Only)
-  - [ ] 7.1 Create billing page `/src/app/(app)/billing/page.tsx`
-  - [ ] 7.2 Display current subscription plan details
-  - [ ] 7.3 Create seat usage visualization (used vs available)
-  - [ ] 7.4 Implement `useBilling` hook for Stripe data
-  - [ ] 7.5 Display recent invoices in a table
-  - [ ] 7.6 Add Stripe billing portal redirect button
-  - [ ] 7.7 Show current payment method (last 4 digits)
-  - [ ] 7.8 Add placeholder for plan upgrade/downgrade
+- [x] 7.0 CSV Operations for Coaches
+  - [x] 7.1 Create bulk add modal with textarea for multiple emails
+  - [x] 7.2 Implement CSV upload using papaparse library
+  - [x] 7.3 Create `/src/app/api/coaches/import/route.ts` endpoint
+  - [x] 7.4 Add CSV validation and preview before import
+  - [x] 7.5 Create CSV export functionality
+  - [x] 7.6 Implement `/src/app/api/coaches/export/route.ts` endpoint
+  - [x] 7.7 Create test CSVs and test with large imports
 
-- [ ] 8.0 Coaches Management Page
-  - [ ] 8.1 Create coaches page `/src/app/(app)/coaches/page.tsx`
-  - [ ] 8.2 Implement coaches list with Catalyst table component
-  - [ ] 8.3 Add pagination (50 coaches per page)
-  - [ ] 8.4 Create search input for name/email filtering
-  - [ ] 8.5 Add role filter dropdown (all/admin/member)
-  - [ ] 8.6 Implement `useCoaches` hook with React Query
-  - [ ] 8.7 Create add coach modal with email input
-  - [ ] 8.8 Implement remove coach with confirmation dialog
-  - [ ] 8.9 Add seat limit validation before adding
-  - [ ] 8.10 Create role change functionality (promote/demote)
-  - [ ] 8.11 Implement optimistic updates for better UX
-  - [ ] 8.12 Add loading states and error handling
+- [x] 8.0 Audit Log Page (Read-Only)
+  - [x] 8.1 Create audit log page `/src/app/(app)/audit-log/page.tsx`
+  - [x] 8.2 Implement simple audit log display showing recent actions
+  - [x] 8.3 Add pagination for audit entries
+  - [x] 8.4 Include timestamp, user, and action type
+  - [x] 8.5 Add loading and error states
 
-- [ ] 9.0 CSV Operations for Coaches
-  - [ ] 9.1 Create bulk add modal with textarea for multiple emails
-  - [ ] 9.2 Implement CSV upload using papaparse library
-  - [ ] 9.3 Create `/src/app/api/coaches/import/route.ts` endpoint
-  - [ ] 9.4 Add CSV validation and preview before import
-  - [ ] 9.5 Implement progress indicator for large imports
-  - [ ] 9.6 Create CSV export functionality
-  - [ ] 9.7 Implement `/src/app/api/coaches/export/route.ts` endpoint
-  - [ ] 9.8 Add bulk selection checkbox column
-  - [ ] 9.9 Implement bulk remove with confirmation
-  - [ ] 9.10 Test with 1000+ coach imports
-
-- [ ] 10.0 Organization Settings Write Operations
-  - [ ] 10.1 Add edit mode to organization settings page
-  - [ ] 10.2 Implement form with react-hook-form
-  - [ ] 10.3 Create organization name/description edit fields
-  - [ ] 10.4 Add admin management section with list
-  - [ ] 10.5 Implement admin promotion/demotion functionality
-  - [ ] 10.6 Add form validation for required fields
-  - [ ] 10.7 Create save button with loading state
-  - [ ] 10.8 Implement success/error toast notifications
-  - [ ] 10.9 Add unsaved changes warning
-
-- [ ] 11.0 Settings Page
-  - [ ] 11.1 Create settings page `/src/app/(app)/settings/page.tsx`
-  - [ ] 11.2 Implement admin profile section with email display
-  - [ ] 11.3 Add password change form with validation
-  - [ ] 11.4 Create notification preferences checkboxes
-  - [ ] 11.5 Implement simple audit log display (recent actions)
-  - [ ] 11.6 Add data export section (future functionality)
-  - [ ] 11.7 Test settings persistence across sessions
-
-- [ ] 12.0 Billing Page Enhancements
-  - [ ] 12.1 Create plan comparison table component
-  - [ ] 12.2 Add upgrade/downgrade buttons with modals
-  - [ ] 12.3 Implement Stripe checkout session creation
-  - [ ] 12.4 Create `/src/app/api/billing/route.ts` endpoints
-  - [ ] 12.5 Add invoice download functionality
-  - [ ] 12.6 Implement subscription cancellation flow
-  - [ ] 12.7 Create `/src/app/api/stripe/webhook/route.ts`
-  - [ ] 12.8 Test Stripe webhook handling
-  - [ ] 12.9 Handle failed payment notifications
-
-- [ ] 13.0 Testing & Quality Assurance
-  - [ ] 13.1 Test all authentication flows (login, OAuth, logout)
-  - [ ] 13.2 Test coach CRUD operations thoroughly
-  - [ ] 13.3 Test CSV import with various file formats
-  - [ ] 13.4 Test CSV export and verify data integrity
-  - [ ] 13.5 Test Stripe integration end-to-end
-  - [ ] 13.6 Performance test all pages (< 2s load time)
-  - [ ] 13.7 Test pagination with large datasets
-  - [ ] 13.8 Mobile responsive testing on tablets
-  - [ ] 13.9 Cross-browser compatibility testing
-  - [ ] 13.10 Security audit for API endpoints
-
-- [ ] 14.0 Deployment & Launch
-  - [ ] 14.1 Configure production environment variables
-  - [ ] 14.2 Set up Vercel project (or chosen platform)
-  - [ ] 14.3 Configure custom domain if available
-  - [ ] 14.4 Run build optimization
-  - [ ] 14.5 Deploy to staging environment
-  - [ ] 14.6 Conduct user acceptance testing
-  - [ ] 14.7 Fix any critical bugs found
-  - [ ] 14.8 Deploy to production
-  - [ ] 14.9 Configure monitoring and alerts
-  - [ ] 14.10 Monitor application for first 24-48 hours
+- [ ] 9.0 Deployment
+  - [x] 9.1 Configure production environment variables
+  - [x] 9.2 Set up custom domain configuration for admin.rinkflow.com
+  - [ ] 9.3 Update Supabase authentication settings for subdomain
+  - [ ] 9.4 Configure CORS and security headers for subdomain
+  - [ ] 9.5 Deploy to Vercel with custom domain
+  - [ ] 9.6 Set up DNS records (CNAME admin.rinkflow.com → Vercel)
+  - [ ] 9.7 Test production deployment and subdomain access
+  - [ ] 9.8 Verify authentication flows work on subdomain
+  - [ ] 9.9 Monitor for first 24 hours

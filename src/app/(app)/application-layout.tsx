@@ -32,25 +32,50 @@ import {
   SparklesIcon,
   UserGroupIcon,
   CreditCardIcon,
-  BuildingOfficeIcon,
-  ChartBarIcon,
-  Cog6ToothIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/react/20/solid'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase-client'
+import type { User } from '@supabase/supabase-js'
 
-function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' }) {
+async function resolveAvatarUrl(session: any, supabase: any): Promise<string | null> {
+  if (!session?.user) return null
+  
+  // Try to get avatar from user metadata first (OAuth providers often set this)
+  let foundAvatar = null
+  if (session.user.user_metadata?.avatar_url) {
+    foundAvatar = session.user.user_metadata.avatar_url
+  } else if (session.user.user_metadata?.picture) {
+    foundAvatar = session.user.user_metadata.picture
+  }
+  
+  // If no avatar in metadata, try to fetch from user_profiles table
+  if (!foundAvatar) {
+    const { data: profile, error } = await supabase
+      .from('user_profiles')
+      .select('avatar_url, social_avatar_url')
+      .eq('id', session.user.id)
+      .maybeSingle()
+    
+    if (!error && profile) {
+      foundAvatar = profile.avatar_url || profile.social_avatar_url || null
+    }
+  }
+  
+  return foundAvatar
+}
+
+function AccountDropdownMenu({ anchor, onSignOut }: { anchor: 'top start' | 'bottom end', onSignOut: () => void }) {
   return (
     <DropdownMenu className="min-w-64" anchor={anchor}>
-      <DropdownItem href="/settings">
-        <Cog6ToothIcon />
-        <DropdownLabel>Settings</DropdownLabel>
-      </DropdownItem>
       <DropdownItem href="mailto:feedback@rinkflow.com">
         <LightBulbIcon />
         <DropdownLabel>Share feedback</DropdownLabel>
       </DropdownItem>
       <DropdownDivider />
-      <DropdownItem href="/">
+      <DropdownItem onClick={onSignOut}>
         <ArrowRightStartOnRectangleIcon />
         <DropdownLabel>Sign out</DropdownLabel>
       </DropdownItem>
@@ -64,6 +89,57 @@ export function ApplicationLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const supabase = createClient()
+
+  useEffect(() => {
+    // Get initial user
+    const getUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+        
+        if (!user) return
+        
+        const avatarUrl = await resolveAvatarUrl({ user }, supabase)
+        setAvatarUrl(avatarUrl)
+      } catch (error) {
+        console.error('Error fetching user:', error)
+      }
+    }
+    getUser()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setUser(session?.user ?? null)
+      
+      if (!session?.user) {
+        setAvatarUrl(null)
+        return
+      }
+      
+      const avatarUrl = await resolveAvatarUrl(session, supabase)
+      setAvatarUrl(avatarUrl)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [supabase])
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
+  // Generate initials from email for fallback avatar
+  const getInitials = (email: string) => {
+    const parts = email.split('@')[0].split('.')
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+    }
+    return email.substring(0, 2).toUpperCase()
+  }
 
   return (
     <SidebarLayout
@@ -73,9 +149,15 @@ export function ApplicationLayout({
           <NavbarSection>
             <Dropdown>
               <DropdownButton as={NavbarItem}>
-                <Avatar src="/users/hockey-player.jpg" square />
+                <div className="size-10">
+                  <Avatar 
+                    src={avatarUrl} 
+                    initials={user?.email ? getInitials(user.email) : 'U'}
+                    square 
+                  />
+                </div>
               </DropdownButton>
-              <AccountDropdownMenu anchor="bottom end" />
+              <AccountDropdownMenu anchor="bottom end" onSignOut={handleSignOut} />
             </Dropdown>
           </NavbarSection>
         </Navbar>
@@ -83,14 +165,14 @@ export function ApplicationLayout({
       sidebar={
         <Sidebar>
           <SidebarHeader>
-            <SidebarItem>
+            <Link href="/dashboard" className="flex items-center gap-3 px-2 py-2.5">
               <span className="font-black text-xl" style={{
                 fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 letterSpacing: '-0.03em'
               }}>
                 Rinkflow Admin
               </span>
-            </SidebarItem>
+            </Link>
           </SidebarHeader>
 
           <SidebarBody>
@@ -103,24 +185,15 @@ export function ApplicationLayout({
                 <UserGroupIcon />
                 <SidebarLabel>Coaches</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/organization" current={pathname.startsWith('/organization')}>
-                <BuildingOfficeIcon />
-                <SidebarLabel>Organization Settings</SidebarLabel>
-              </SidebarItem>
               <SidebarItem href="/billing" current={pathname.startsWith('/billing')}>
                 <CreditCardIcon />
                 <SidebarLabel>Billing</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/analytics" current={pathname.startsWith('/analytics')}>
-                <ChartBarIcon />
-                <SidebarLabel>Analytics</SidebarLabel>
-              </SidebarItem>
-              <SidebarItem href="/settings" current={pathname.startsWith('/settings')}>
-                <Cog6ToothIcon />
-                <SidebarLabel>Settings</SidebarLabel>
+              <SidebarItem href="/audit-log" current={pathname.startsWith('/audit-log')}>
+                <ClipboardDocumentListIcon />
+                <SidebarLabel>Audit Log</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
-
 
             <SidebarSpacer />
 
@@ -129,7 +202,7 @@ export function ApplicationLayout({
                 <QuestionMarkCircleIcon />
                 <SidebarLabel>Support</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/changelog">
+              <SidebarItem href="/changelog" current={pathname.startsWith('/changelog')}>
                 <SparklesIcon />
                 <SidebarLabel>Changelog</SidebarLabel>
               </SidebarItem>
@@ -140,17 +213,25 @@ export function ApplicationLayout({
             <Dropdown>
               <DropdownButton as={SidebarItem}>
                 <span className="flex min-w-0 items-center gap-3">
-                  <Avatar src="/users/hockey-player.jpg" className="size-10" square alt="" />
+                  <Avatar 
+                    src={avatarUrl} 
+                    initials={user?.email ? getInitials(user.email) : 'U'}
+                    className="size-10" 
+                    square 
+                    alt="" 
+                  />
                   <span className="min-w-0">
-                    <span className="block truncate text-sm/5 font-medium text-zinc-950 dark:text-white">Admin User</span>
+                    <span className="block truncate text-sm/5 font-medium text-zinc-950 dark:text-white">
+                      {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+                    </span>
                     <span className="block truncate text-xs/5 font-normal text-zinc-500 dark:text-zinc-400">
-                      admin@rinkflow.com
+                      {user?.email || 'Loading...'}
                     </span>
                   </span>
                 </span>
                 <ChevronUpIcon />
               </DropdownButton>
-              <AccountDropdownMenu anchor="top start" />
+              <AccountDropdownMenu anchor="top start" onSignOut={handleSignOut} />
             </Dropdown>
           </SidebarFooter>
         </Sidebar>

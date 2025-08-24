@@ -1,0 +1,11 @@
+Email
+valid.email@example.com
+invalid-email-no-at-sign
+another.valid@test.com
+invalid@
+@invalid.com
+duplicate@example.com
+good.coach@company.com
+duplicate@example.com
+not-an-email
+final.valid@domain.org

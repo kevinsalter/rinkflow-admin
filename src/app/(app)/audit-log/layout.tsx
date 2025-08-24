@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Reset Password',
-  description: 'Reset your Rinkflow Admin account password',
+  title: 'Audit Log',
+  description: 'View recent organizational activities and changes',
 }
 
-export default function ForgotPasswordLayout({
+export default function AuditLogLayout({
   children,
 }: {
   children: React.ReactNode

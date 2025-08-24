@@ -7,7 +7,7 @@ Phase 1 delivers a fully functional admin portal for the Rinkflow platform, enab
 ## Goals
 
 1. Deliver a complete admin portal with all core functionality
-2. Integrate Supabase authentication with email/password and Google OAuth
+2. Integrate Supabase authentication with email/password
 3. Implement comprehensive coach management with CSV import/export
 4. Integrate Stripe for subscription and billing management
 5. Provide analytics and usage insights for organizations
@@ -17,7 +17,7 @@ Phase 1 delivers a fully functional admin portal for the Rinkflow platform, enab
 
 ## User Stories
 
-1. **As an organization admin**, I want to log in using email/password or Google OAuth so that I can access the admin portal securely.
+1. **As an organization admin**, I want to log in using email/password so that I can access the admin portal securely.
 
 2. **As an organization admin**, I want to view a dashboard with key metrics so that I can quickly understand my organization's status.
 
@@ -35,93 +35,92 @@ Phase 1 delivers a fully functional admin portal for the Rinkflow platform, enab
 
 ## Functional Requirements
 
-### Authentication & Authorization (FR1-FR8)
+### Authentication & Authorization (FR1-FR7)
 
 1. **FR1**: The system must integrate with the existing Supabase authentication instance used by the mobile app
 2. **FR2**: The system must support username/password login through Supabase
-3. **FR3**: The system must support Google OAuth login through Supabase
-4. **FR4**: The system must check if a logged-in user has admin role privileges using a temporary hardcoded email whitelist (admin@rinkflow.com, test@rinkflow.com, and development team emails)
-5. **FR5**: The system must show non-admin users an error message: "Access Denied: This portal is for organization administrators only. Coaches should use the Rinkflow mobile app."
-6. **FR6**: The system must maintain user sessions for 7 days with activity-based refresh (session extends on each visit)
-7. **FR7**: The system must handle all authentication errors with user-friendly messages following application best practices
-8. **FR8**: The system must clear sessions properly on logout and redirect to the login page
+3. **FR3**: The system must check if a logged-in user has admin role privileges using a temporary hardcoded email whitelist (admin@rinkflow.com, test@rinkflow.com, and development team emails)
+4. **FR4**: The system must show non-admin users an error message: "Access Denied: This portal is for organization administrators only. Coaches should use the Rinkflow mobile app."
+5. **FR5**: The system must maintain user sessions for 7 days with activity-based refresh (session extends on each visit)
+6. **FR6**: The system must handle all authentication errors with user-friendly messages following application best practices
+7. **FR7**: The system must clear sessions properly on logout and redirect to the login page
 
-### Root Page Behavior (FR9-FR11)
+### Root Page Behavior (FR8-FR10)
 
-9. **FR9**: The system must handle the root route (/) as follows:
+8. **FR8**: The system must handle the root route (/) as follows:
    - Redirects to /login when not authenticated
    - Redirects to /dashboard immediately if already authenticated as admin
    - Shows error message if authenticated user is not an admin
-10. **FR10**: The login page must display Rinkflow branding and authentication functionality
-11. **FR11**: The (auth) route group pages (/login, /forgot-password) must be the only publicly accessible pages
+9. **FR9**: The login page must display Rinkflow branding and authentication functionality
+10. **FR10**: The (auth) route group pages (/login, /forgot-password) must be the only publicly accessible pages
 
-### Protected Routes (FR12-FR15)
+### Protected Routes (FR11-FR14)
 
-12. **FR12**: The system must protect all (app) routes, requiring admin authentication
-13. **FR13**: The system must redirect unauthenticated users to /login when accessing protected routes  
-14. **FR14**: The system must redirect authenticated admins from root and /login to /dashboard automatically
-15. **FR15**: The system must implement all navigation routes: /dashboard, /coaches, /organization-settings, /billing, /analytics, /settings
+11. **FR11**: The system must protect all (app) routes, requiring admin authentication
+12. **FR12**: The system must redirect unauthenticated users to /login when accessing protected routes  
+13. **FR13**: The system must redirect authenticated admins from root and /login to /dashboard automatically
+14. **FR14**: The system must implement all navigation routes: /dashboard, /coaches, /organization-settings, /billing, /analytics, /settings
 
-### Branding & UI (FR16-FR20)
+### Branding & UI (FR15-FR19)
 
-16. **FR16**: The system must replace all Catalyst demo content with Rinkflow branding
-17. **FR17**: The system must use the existing Catalyst UI components and theme without custom color overrides
-18. **FR18**: The system must display the Rinkflow logo consistently across all pages
-19. **FR19**: The system must implement responsive design with desktop-first optimization
-20. **FR20**: The system must support dark mode if provided by Catalyst theme
+15. **FR15**: The system must replace all Catalyst demo content with Rinkflow branding
+16. **FR16**: The system must use the existing Catalyst UI components and theme without custom color overrides
+17. **FR17**: The system must display the Rinkflow logo consistently across all pages
+18. **FR18**: The system must implement responsive design with desktop-first optimization
+19. **FR19**: The system must support dark mode if provided by Catalyst theme
 
-### Dashboard Page (FR21-FR25)
+### Dashboard Page (FR20-FR24)
 
-21. **FR21**: The dashboard must display organization overview metrics (total coaches, subscription status)
-22. **FR22**: The dashboard must show recent activity and events
-23. **FR23**: The dashboard must provide quick action cards for common tasks
-24. **FR24**: The dashboard must refresh data using React Query
-25. **FR25**: The dashboard must load within 2 seconds
+20. **FR20**: The dashboard must display organization overview metrics (total coaches, subscription status)
+21. **FR21**: The dashboard must show recent activity and events
+22. **FR22**: The dashboard must provide quick action cards for common tasks
+23. **FR23**: The dashboard must refresh data using React Query
+24. **FR24**: The dashboard must load within 2 seconds
 
-### Coaches Management (FR26-FR33)
+### Coaches Management (FR25-FR32)
 
-26. **FR26**: The coaches page must display all organization coaches in a paginated table
-27. **FR27**: The system must support adding individual coaches by email
-28. **FR28**: The system must support bulk coach import via CSV file upload
-29. **FR29**: The system must validate seat limits before adding coaches
-30. **FR30**: The system must support removing coaches with confirmation
-31. **FR31**: The system must provide search and filter capabilities for coaches
-32. **FR32**: The system must support role assignment (admin/member)
-33. **FR33**: The system must export coach lists to CSV format
+25. **FR25**: The coaches page must display all organization coaches in a paginated table
+26. **FR26**: The system must support adding individual coaches by email
+27. **FR27**: The system must support bulk coach import via CSV file upload
+28. **FR28**: The system must validate seat limits before adding coaches
+29. **FR29**: The system must support removing coaches with confirmation
+30. **FR30**: The system must provide search and filter capabilities for coaches
+31. **FR31**: The system must support role assignment (admin/member)
+32. **FR32**: The system must export coach lists to CSV format
 
-### Organization Settings (FR34-FR38)
+### Organization Settings (FR33-FR37)
 
-34. **FR34**: The settings page must display organization name and details
-35. **FR35**: The system must allow editing organization information
-36. **FR36**: The system must display member count vs seat limit
-37. **FR37**: The system must show current subscription status
-38. **FR38**: The system must allow managing organization administrators
+33. **FR33**: The settings page must display organization name and details
+34. **FR34**: The system must allow editing organization information
+35. **FR35**: The system must display member count vs seat limit
+36. **FR36**: The system must show current subscription status
+37. **FR37**: The system must allow managing organization administrators
 
-### Billing Management (FR39-FR45)
+### Billing Management (FR38-FR44)
 
-39. **FR39**: The billing page must display current subscription plan
-40. **FR40**: The system must show seat usage with visual indicators
-41. **FR41**: The system must provide upgrade/downgrade plan options
-42. **FR42**: The system must display billing history and invoices
-43. **FR43**: The system must integrate with Stripe billing portal
-44. **FR44**: The system must support subscription cancellation
-45. **FR45**: The system must handle failed payment notifications
+38. **FR38**: The billing page must display current subscription plan
+39. **FR39**: The system must show seat usage with visual indicators
+40. **FR40**: The system must provide upgrade/downgrade plan options
+41. **FR41**: The system must display billing history and invoices
+42. **FR42**: The system must integrate with Stripe billing portal
+43. **FR43**: The system must support subscription cancellation
+44. **FR44**: The system must handle failed payment notifications
 
-### Analytics & Reporting (FR46-FR50)
+### Analytics & Reporting (FR45-FR49)
 
-46. **FR46**: The analytics page must show organization usage metrics
-47. **FR47**: The system must display coach activity statistics
-48. **FR48**: The system must track content creation (drills, practice plans)
-49. **FR49**: The system must provide revenue and billing trends
-50. **FR50**: The system must export analytics data to CSV
+45. **FR45**: The analytics page must show organization usage metrics
+46. **FR46**: The system must display coach activity statistics
+47. **FR47**: The system must track content creation (drills, practice plans)
+48. **FR48**: The system must provide revenue and billing trends
+49. **FR49**: The system must export analytics data to CSV
 
-### Settings & Configuration (FR51-FR55)
+### Settings & Configuration (FR50-FR54)
 
-51. **FR51**: The settings page must allow admin profile management
-52. **FR52**: The system must provide app preference configuration
-53. **FR53**: The system must manage notification settings
-54. **FR54**: The system must display audit logs for admin actions
-55. **FR55**: The system must securely handle all environment variables
+50. **FR50**: The settings page must allow admin profile management
+51. **FR51**: The system must provide app preference configuration
+52. **FR52**: The system must manage notification settings
+53. **FR53**: The system must display audit logs for admin actions
+54. **FR54**: The system must securely handle all environment variables
 
 ## Non-Goals (Out of Scope)
 
@@ -182,7 +181,7 @@ Phase 1 delivers a fully functional admin portal for the Rinkflow platform, enab
 
 ## Success Metrics
 
-1. **Authentication**: 100% of admin emails can log in via email or Google OAuth
+1. **Authentication**: 100% of admin emails can log in via email/password
 2. **Access Control**: Non-admin users cannot access any protected routes
 3. **Page Load Performance**: All pages load in under 2 seconds
 4. **Data Operations**: CSV import/export handles 1000+ coaches without errors
@@ -244,7 +243,6 @@ const ERROR_MESSAGES = {
 
 #### Authentication
 - [ ] Email/password login works
-- [ ] Google OAuth login works
 - [ ] Forgot password flow sends reset email
 - [ ] Non-admin users see appropriate error
 - [ ] Sessions persist for 7 days
