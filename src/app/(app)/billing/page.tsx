@@ -3,12 +3,14 @@
 import { Heading } from '@/components/heading'
 import { Text } from '@/components/text'
 import { Badge } from '@/components/badge'
-import { Divider } from '@/components/divider'
 import { DescriptionList, DescriptionDetails, DescriptionTerm } from '@/components/description-list'
 import { Skeleton } from '@/components/skeleton'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
+import { Button } from '@/components/button'
 import { useOrganization } from '@/contexts/OrganizationContext'
 import { useOrganizationStats } from '@/hooks/queries/useOrganizationStats'
 import { useBilling } from '@/hooks/queries/useBilling'
+import { ArrowDownTrayIcon, DocumentTextIcon } from '@heroicons/react/20/solid'
 
 export default function BillingPage() {
   const { organization, isLoading: orgLoading } = useOrganization()
@@ -29,6 +31,23 @@ export default function BillingPage() {
   const formatStatus = (status: string | null) => {
     if (!status) return 'No Subscription'
     return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')
+  }
+
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency.toUpperCase(),
+    }).format(amount / 100) // Stripe amounts are in cents
+  }
+
+  const formatInvoiceStatus = (status: string) => {
+    const statusConfig: Record<string, { label: string; color: 'lime' | 'amber' | 'rose' | 'zinc' }> = {
+      paid: { label: 'Paid', color: 'lime' },
+      open: { label: 'Open', color: 'amber' },
+      void: { label: 'Void', color: 'zinc' },
+      uncollectible: { label: 'Uncollectible', color: 'rose' },
+    }
+    return statusConfig[status] || { label: status, color: 'zinc' }
   }
 
   if (orgLoading || statsLoading) {
@@ -214,12 +233,93 @@ export default function BillingPage() {
         </div>
 
         <div className="rounded-lg border border-zinc-950/10 dark:border-white/10 p-6">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
             Recent Invoices
           </h2>
-          <Text className="mt-2">
-            View and download your billing history
-          </Text>
+          
+          {billingLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex justify-between">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              ))}
+            </div>
+          ) : billingData?.invoices && billingData.invoices.length > 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableHeader>Date</TableHeader>
+                    <TableHeader>Invoice Number</TableHeader>
+                    <TableHeader>Amount</TableHeader>
+                    <TableHeader>Status</TableHeader>
+                    <TableHeader>Actions</TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {billingData.invoices.map((invoice) => {
+                    const invoiceStatus = formatInvoiceStatus(invoice.status)
+                    return (
+                      <TableRow key={invoice.id}>
+                        <TableCell>
+                          {new Date(invoice.created * 1000).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">
+                          {invoice.number || invoice.id.slice(-8).toUpperCase()}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {formatCurrency(invoice.total, invoice.currency)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge color={invoiceStatus.color}>
+                            {invoiceStatus.label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            {invoice.hosted_invoice_url && (
+                              <Button
+                                href={invoice.hosted_invoice_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                outline
+                                className="!py-1 !px-2 text-xs"
+                              >
+                                <DocumentTextIcon className="h-3.5 w-3.5" />
+                                View
+                              </Button>
+                            )}
+                            {invoice.invoice_pdf && (
+                              <Button
+                                href={invoice.invoice_pdf}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                outline
+                                className="!py-1 !px-2 text-xs"
+                              >
+                                <ArrowDownTrayIcon className="h-3.5 w-3.5" />
+                                PDF
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <Text className="text-sm text-zinc-500">
+              No invoices found. Invoices will appear here after your first billing cycle.
+            </Text>
+          )}
         </div>
       </div>
     </>

@@ -105,7 +105,7 @@
   - [x] 5.2 Display current subscription plan details
   - [x] 5.3 Show seat usage (used vs available)
   - [x] 5.4 Implement `useBilling` hook for Stripe data
-  - [ ] 5.5 Display recent invoices in a table
+  - [x] 5.5 Display recent invoices in a table
   - [ ] 5.6 Add Stripe billing portal redirect button
 
 - [ ] 6.0 Coaches Management Page (Simplified)
