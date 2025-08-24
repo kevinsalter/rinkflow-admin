@@ -38,17 +38,9 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <Heading>Settings</Heading>
+      <Heading>Audit Log</Heading>
 
       <div className="mt-8">
-        <div className="mb-6">
-          <h3 className="text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-100">
-            Audit Log
-          </h3>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Recent organizational activities and changes
-          </p>
-        </div>
 
         {showSkeleton ? (
           <Table>

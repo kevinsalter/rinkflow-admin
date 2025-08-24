@@ -32,7 +32,7 @@ import {
   SparklesIcon,
   UserGroupIcon,
   CreditCardIcon,
-  Cog6ToothIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/react/20/solid'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -43,10 +43,6 @@ import type { User } from '@supabase/supabase-js'
 function AccountDropdownMenu({ anchor, onSignOut }: { anchor: 'top start' | 'bottom end', onSignOut: () => void }) {
   return (
     <DropdownMenu className="min-w-64" anchor={anchor}>
-      <DropdownItem href="/settings">
-        <Cog6ToothIcon />
-        <DropdownLabel>Settings</DropdownLabel>
-      </DropdownItem>
       <DropdownItem href="mailto:feedback@rinkflow.com">
         <LightBulbIcon />
         <DropdownLabel>Share feedback</DropdownLabel>
@@ -207,8 +203,8 @@ export function ApplicationLayout({
                 <SidebarLabel>Billing</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/settings" current={pathname.startsWith('/settings')}>
-                <Cog6ToothIcon />
-                <SidebarLabel>Settings</SidebarLabel>
+                <ClipboardDocumentListIcon />
+                <SidebarLabel>Audit Log</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
 
