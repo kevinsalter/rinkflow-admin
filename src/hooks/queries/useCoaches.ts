@@ -87,6 +87,7 @@ export function useAddCoach() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coaches', organization?.id] })
+      queryClient.invalidateQueries({ queryKey: ['memberCount', organization?.id] })
     },
   })
 }
@@ -112,6 +113,7 @@ export function useRemoveCoach() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coaches', organization?.id] })
+      queryClient.invalidateQueries({ queryKey: ['memberCount', organization?.id] })
     },
   })
 }
@@ -138,6 +140,7 @@ export function useBulkAddCoaches() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coaches', organization?.id] })
+      queryClient.invalidateQueries({ queryKey: ['memberCount', organization?.id] })
     },
   })
 }

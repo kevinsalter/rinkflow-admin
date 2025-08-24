@@ -120,14 +120,14 @@
   - [x] 6.9 Add seat limit validation before adding
   - [x] 6.10 Add loading skeleton for the page
 
-- [ ] 7.0 CSV Operations for Coaches
-  - [ ] 7.1 Create bulk add modal with textarea for multiple emails
-  - [ ] 7.2 Implement CSV upload using papaparse library
-  - [ ] 7.3 Create `/src/app/api/coaches/import/route.ts` endpoint
-  - [ ] 7.4 Add CSV validation and preview before import
-  - [ ] 7.5 Create CSV export functionality
-  - [ ] 7.6 Implement `/src/app/api/coaches/export/route.ts` endpoint
-  - [ ] 7.7 Test with large imports
+- [x] 7.0 CSV Operations for Coaches
+  - [x] 7.1 Create bulk add modal with textarea for multiple emails
+  - [x] 7.2 Implement CSV upload using papaparse library
+  - [x] 7.3 Create `/src/app/api/coaches/import/route.ts` endpoint
+  - [x] 7.4 Add CSV validation and preview before import
+  - [x] 7.5 Create CSV export functionality
+  - [x] 7.6 Implement `/src/app/api/coaches/export/route.ts` endpoint
+  - [x] 7.7 Create test CSVs and test with large imports
 
 - [ ] 8.0 Audit Log Page (Read-Only)
   - [ ] 8.1 Create settings page `/src/app/(app)/settings/page.tsx`
