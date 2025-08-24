@@ -55,6 +55,19 @@
   - Add manual refresh button in admin UI
   - Current implementation has fallback to direct queries, so this is not blocking
 
+### Deployment Notes (admin.rinkflow.com)
+
+**Subdomain-specific requirements:**
+
+- **Supabase Auth**: Update Site URL to `https://admin.rinkflow.com` and add to redirect URLs list
+- **CORS Configuration**: Ensure Supabase accepts requests from admin.rinkflow.com origin
+- **Cookie Domain**: Verify auth cookies work across .rinkflow.com domain (should work automatically)
+- **DNS Setup**: CNAME record `admin.rinkflow.com` pointing to Vercel deployment
+- **SSL Certificate**: Vercel handles SSL automatically for custom domains
+- **Environment Variables**: Same as development but with production Supabase/Stripe keys
+- **Security Headers**: Consider CSP, HSTS for production security
+- **Monitoring**: Set up error tracking and performance monitoring for subdomain
+
 ## Tasks
 
 - [x] 1.0 Environment Setup & Core Configuration
@@ -140,6 +153,11 @@
 
 - [ ] 9.0 Deployment
   - [ ] 9.1 Configure production environment variables
-  - [ ] 9.2 Deploy to Vercel
-  - [ ] 9.3 Test production deployment
-  - [ ] 9.4 Monitor for first 24 hours
+  - [ ] 9.2 Set up custom domain configuration for admin.rinkflow.com
+  - [ ] 9.3 Update Supabase authentication settings for subdomain
+  - [ ] 9.4 Configure CORS and security headers for subdomain
+  - [ ] 9.5 Deploy to Vercel with custom domain
+  - [ ] 9.6 Set up DNS records (CNAME admin.rinkflow.com → Vercel)
+  - [ ] 9.7 Test production deployment and subdomain access
+  - [ ] 9.8 Verify authentication flows work on subdomain
+  - [ ] 9.9 Monitor for first 24 hours
