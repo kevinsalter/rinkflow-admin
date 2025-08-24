@@ -1,0 +1,143 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase-server'
+
+export async function POST(request: NextRequest) {
+  try {
+    const { email, organizationId } = await request.json()
+
+    if (!email || !organizationId) {
+      return NextResponse.json(
+        { error: 'Email and organization ID are required' },
+        { status: 400 }
+      )
+    }
+
+    // Check if user is authenticated using regular client
+    const authClient = await createClient()
+    const { data: { user }, error: authError } = await authClient.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Use service role client to bypass RLS
+    const supabase = await createServiceRoleClient()
+    
+    // Check if member already exists
+    const { data: existingMember } = await supabase
+      .from('organization_members')
+      .select('id')
+      .eq('organization_id', organizationId)
+      .eq('email', email)
+      .is('removed_at', null)
+      .single()
+
+    if (existingMember) {
+      return NextResponse.json(
+        { error: 'This email is already a member of your organization' },
+        { status: 400 }
+      )
+    }
+
+    // Direct insert with service role (bypasses RLS)
+    const { data, error } = await supabase
+      .from('organization_members')
+      .insert({
+        email,
+        organization_id: organizationId,
+        role: 'coach',
+        invited_at: new Date().toISOString(),
+        invited_by: user.id
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error adding coach:', error)
+      // Don't expose technical details to the client
+      return NextResponse.json(
+        { error: 'Unable to add coach. Please try again later.' },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Error in POST /api/coaches:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const organizationId = searchParams.get('organizationId')
+    const page = parseInt(searchParams.get('page') || '1')
+    const pageSize = parseInt(searchParams.get('pageSize') || '25')
+    const searchTerm = searchParams.get('search') || ''
+
+    if (!organizationId) {
+      return NextResponse.json(
+        { error: 'Organization ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // Check if user is authenticated using regular client
+    const authClient = await createClient()
+    const { data: { user }, error: authError } = await authClient.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Use regular client for database operations
+    const supabase = await createClient()
+
+    let query = supabase
+      .from('organization_members')
+      .select('*', { count: 'exact' })
+      .eq('organization_id', organizationId)
+      .is('removed_at', null)
+      .order('created_at', { ascending: false })
+
+    // Apply search filter
+    if (searchTerm) {
+      query = query.ilike('email', `%${searchTerm}%`)
+    }
+
+    // Pagination
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
+    query = query.range(from, to)
+
+    const { data, error, count } = await query
+
+    if (error) {
+      console.error('Error fetching coaches:', error)
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({
+      members: data || [],
+      totalCount: count || 0,
+      totalPages: Math.ceil((count || 0) / pageSize)
+    })
+  } catch (error) {
+    console.error('Error in GET /api/coaches:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

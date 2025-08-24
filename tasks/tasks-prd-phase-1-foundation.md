@@ -111,13 +111,14 @@
 - [ ] 6.0 Coaches Management Page (Simplified)
   - [x] 6.1 Create coaches page `/src/app/(app)/coaches/page.tsx`
   - [x] 6.2 Implement coaches list with Catalyst table component
-  - [x] 6.3 Add pagination (50 coaches per page)
-  - [x] 6.4 Create search input for name/email filtering
+  - [x] 6.3 Add pagination (25 coaches per page)
+  - [x] 6.4 Create search input for email filtering
   - [x] 6.5 Implement `useCoaches` hook with React Query
-  - [ ] 6.6 Create add coach modal with email input
-  - [ ] 6.7 Implement remove coach with confirmation dialog
-  - [ ] 6.8 Add seat limit validation before adding
-  - [ ] 6.9 Add loading states and error handling
+  - [x] 6.6 Create add coach modal with email input
+  - [x] 6.7 Create API route for coach operations with service role
+  - [ ] 6.8 Implement remove coach with confirmation dialog
+  - [ ] 6.9 Add seat limit validation before adding
+  - [ ] 6.10 Add loading states and error handling
 
 - [ ] 7.0 CSV Operations for Coaches
   - [ ] 7.1 Create bulk add modal with textarea for multiple emails

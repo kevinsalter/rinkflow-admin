@@ -8,8 +8,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/badge'
 import { UserPlusIcon, MagnifyingGlassIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { useOrganization } from '@/contexts/OrganizationContext'
-import { useCoaches } from '@/hooks/queries/useCoaches'
+import { useCoaches, useAddCoach } from '@/hooks/queries/useCoaches'
 import { Database } from '@/types/database.types'
+import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from '@/components/dialog'
+import { Field, Label } from '@/components/fieldset'
+import { ErrorMessage } from '@/components/fieldset'
 
 type OrganizationMember = Database['public']['Tables']['organization_members']['Row']
 
@@ -17,6 +20,9 @@ export default function CoachesPage() {
   const { organization } = useOrganization()
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [newCoachEmail, setNewCoachEmail] = useState('')
+  const [addCoachError, setAddCoachError] = useState('')
   const itemsPerPage = 25
 
   // Fetch coaches/members using the custom hook
@@ -26,9 +32,65 @@ export default function CoachesPage() {
     pageSize: itemsPerPage
   })
 
+  // Add coach mutation
+  const addCoachMutation = useAddCoach()
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
     setCurrentPage(1) // Reset to first page on search
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value
+    setNewCoachEmail(email)
+    
+    // Clear error when user types a valid email
+    if (email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (emailRegex.test(email)) {
+        setAddCoachError('')
+      }
+    }
+  }
+
+  const handleEmailBlur = () => {
+    if (newCoachEmail.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(newCoachEmail)) {
+        setAddCoachError('Please enter a valid email address')
+      }
+    }
+  }
+
+  const handleAddCoach = async () => {
+    if (!newCoachEmail.trim()) {
+      setAddCoachError('Email is required')
+      return
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(newCoachEmail)) {
+      setAddCoachError('Please enter a valid email address')
+      return
+    }
+
+    try {
+      setAddCoachError('')
+      await addCoachMutation.mutateAsync(newCoachEmail)
+      setNewCoachEmail('')
+      setIsAddModalOpen(false)
+    } catch (error) {
+      console.error('Error adding coach:', error)
+      // Never show technical errors to users
+      setAddCoachError('Unable to add coach at this time. Please try again later or contact Rinkflow support.')
+    }
+  }
+
+  const openAddModal = () => {
+    setNewCoachEmail('')
+    setAddCoachError('')
+    setIsAddModalOpen(true)
   }
 
   const getRoleBadgeColor = (role: string) => {
@@ -75,7 +137,7 @@ export default function CoachesPage() {
             <ArrowUpTrayIcon className="h-4 w-4" />
             Export CSV
           </Button>
-          <Button color="dark/zinc">
+          <Button color="dark/zinc" onClick={openAddModal}>
             <UserPlusIcon className="h-4 w-4" />
             Add Coach
           </Button>
@@ -184,6 +246,60 @@ export default function CoachesPage() {
           </>
         )}
       </div>
+
+      {/* Add Coach Modal */}
+      <Dialog open={isAddModalOpen} onClose={setIsAddModalOpen} size="xl">
+        <DialogTitle>Add a new coach to your organization</DialogTitle>
+        <DialogBody>
+          <div className="mb-4 rounded-lg border border-sky-200 bg-sky-50 p-4 dark:border-sky-900/50 dark:bg-sky-950/20">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-sky-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-sky-800 dark:text-sky-200">
+                  Next Steps Required
+                </h3>
+                <div className="mt-2 text-sm text-sky-700 dark:text-sky-300">
+                  <p>After adding this coach, you must:</p>
+                  <ol className="mt-1 list-decimal list-inside space-y-1">
+                    <li>Personally email them (no automatic email will be sent)</li>
+                    <li>Ask them to download the Rinkflow app (iOS or Android)</li>
+                    <li>Have them sign in with this email address</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+          <Field>
+            <Label>Email Address</Label>
+            <Input
+              type="email"
+              value={newCoachEmail}
+              onChange={handleEmailChange}
+              onBlur={handleEmailBlur}
+              placeholder="coach@example.com"
+              invalid={!!addCoachError}
+              autoFocus
+            />
+            {addCoachError && <ErrorMessage>{addCoachError}</ErrorMessage>}
+          </Field>
+        </DialogBody>
+        <DialogActions>
+          <Button plain onClick={() => setIsAddModalOpen(false)}>
+            Cancel
+          </Button>
+          <button 
+            onClick={handleAddCoach}
+            disabled={addCoachMutation.isPending}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white cursor-pointer transition-all duration-150 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed dark:focus:ring-offset-zinc-800"
+          >
+            {addCoachMutation.isPending ? 'Adding...' : 'Add Coach'}
+          </button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }

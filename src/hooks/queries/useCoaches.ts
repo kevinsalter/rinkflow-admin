@@ -35,7 +35,7 @@ export function useCoaches({ searchTerm = '', page = 1, pageSize = 50 }: UseCoac
 
       // Apply search filter
       if (searchTerm) {
-        query = query.or(`email.ilike.%${searchTerm}%,role.ilike.%${searchTerm}%`)
+        query = query.or(`email.ilike.%${searchTerm}%`)
       }
 
       // Pagination
@@ -60,25 +60,28 @@ export function useCoaches({ searchTerm = '', page = 1, pageSize = 50 }: UseCoac
 export function useAddCoach() {
   const { organization } = useOrganization()
   const queryClient = useQueryClient()
-  const supabase = createClient()
 
   return useMutation({
     mutationFn: async (email: string) => {
       if (!organization?.id) throw new Error('No organization')
 
-      const { data, error } = await supabase
-        .from('organization_members')
-        .insert({
+      const response = await fetch('/api/coaches', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           email,
-          organization_id: organization.id,
-          role: 'coach',
-          invited_at: new Date().toISOString(),
-        })
-        .select()
-        .single()
+          organizationId: organization.id,
+        }),
+      })
 
-      if (error) throw error
-      return data
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to add coach')
+      }
+
+      return response.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coaches', organization?.id] })

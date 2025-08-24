@@ -20,7 +20,7 @@ export default function Dashboard() {
       <div>
         <div className="mb-8">
           <Heading>Dashboard</Heading>
-          <div className="mt-6 flex items-center gap-3">
+          <div className="mt-6 flex items-center justify-between">
             <Skeleton className="h-9 w-48" />
             <Skeleton className="h-6 w-24 rounded-full" />
           </div>
@@ -156,7 +156,7 @@ export default function Dashboard() {
     <div>
       <div className="mb-8">
         <Heading>Dashboard</Heading>
-        <div className="mt-6 flex items-center gap-3">
+        <div className="mt-6 flex items-center justify-between">
           <h2 className="text-2xl font-semibold text-zinc-950 dark:text-white">
             {organization.name}
           </h2>
