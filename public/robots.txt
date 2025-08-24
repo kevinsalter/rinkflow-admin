@@ -1,35 +1,5 @@
-# Rinkflow Admin Portal - Private Admin Dashboard
-# This is a private admin portal and should not be indexed
-
 User-agent: *
 Disallow: /
-Crawl-delay: 86400
 
-# Block all search engine bots explicitly
-User-agent: Googlebot
-Disallow: /
-
-User-agent: Bingbot
-Disallow: /
-
-User-agent: Slurp
-Disallow: /
-
-User-agent: DuckDuckBot
-Disallow: /
-
-User-agent: Baiduspider
-Disallow: /
-
-User-agent: YandexBot
-Disallow: /
-
-# Block archiving bots
-User-agent: ia_archiver
-Disallow: /
-
-User-agent: Wayback Machine
-Disallow: /
-
-# No sitemap since this is a private portal
-# Sitemap: (none)
+# Rinkflow Admin Dashboard
+# This is a private administrative interface and should not be indexed

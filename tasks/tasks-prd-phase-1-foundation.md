@@ -37,6 +37,11 @@
 - `/src/hooks/queries/useBilling.ts` - Subscription and invoice queries
 - `/src/hooks/queries/useAuditLog.ts` - Infinite query for audit log with pagination
 
+### Deployment Configuration
+- `/vercel.json` - Vercel deployment configuration with custom domain, security headers, and function settings
+- `/DEPLOYMENT.md` - Comprehensive deployment guide for admin.rinkflow.com subdomain
+- `/.env.production` - Production environment variables template
+
 ### Notes
 
 - Unit tests should typically be placed alongside the code files they are testing (e.g., `MyComponent.tsx` and `MyComponent.test.tsx` in the same directory)
@@ -153,7 +158,7 @@
 
 - [ ] 9.0 Deployment
   - [x] 9.1 Configure production environment variables
-  - [ ] 9.2 Set up custom domain configuration for admin.rinkflow.com
+  - [x] 9.2 Set up custom domain configuration for admin.rinkflow.com
   - [ ] 9.3 Update Supabase authentication settings for subdomain
   - [ ] 9.4 Configure CORS and security headers for subdomain
   - [ ] 9.5 Deploy to Vercel with custom domain
