@@ -63,7 +63,7 @@ export async function middleware(request: NextRequest) {
       .from('organization_members')
       .select('organization_id, role')
       .eq('user_id', user.id)
-      .is('removed_at', null)
+      .is('deleted_at', null)
       .single()
 
     // If user is not a member of any organization, redirect to access denied

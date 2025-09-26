@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       .select('id')
       .eq('organization_id', organizationId)
       .eq('email', email)
-      .is('removed_at', null)
+      .is('deleted_at', null)
       .single()
 
     if (existingMember) {
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
         .from('organization_members')
         .select('*', { count: 'exact', head: true })
         .eq('organization_id', organizationId)
-        .is('removed_at', null)
+        .is('deleted_at', null)
 
       if (currentMemberCount && currentMemberCount >= org.seat_limit) {
         return NextResponse.json(
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
       .from('organization_members')
       .select('*', { count: 'exact' })
       .eq('organization_id', organizationId)
-      .is('removed_at', null)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
 
     // Apply search filter
@@ -213,10 +213,10 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Soft delete by setting removed_at
+    // Soft delete by setting deleted_at
     const { error } = await supabase
       .from('organization_members')
-      .update({ removed_at: new Date().toISOString() })
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', memberId)
       .eq('organization_id', organizationId)
 

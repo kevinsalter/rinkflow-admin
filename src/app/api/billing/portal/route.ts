@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       .select('role')
       .eq('organization_id', organizationId)
       .eq('user_id', user.id)
-      .is('removed_at', null)
+      .is('deleted_at', null)
       .single()
 
     if (memberError || !membership || (membership.role !== 'admin' && membership.role !== 'owner')) {

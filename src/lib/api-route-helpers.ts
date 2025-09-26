@@ -28,7 +28,7 @@ export function withAuth(
         .from('organization_members')
         .select('organization_id, role')
         .eq('user_id', user.id)
-        .is('removed_at', null)
+        .is('deleted_at', null)
         .single()
 
       if (!membership) {
@@ -97,7 +97,7 @@ export async function getRequestOrganization(req: NextRequest): Promise<{
       .from('organization_members')
       .select('organization_id')
       .eq('user_id', user.id)
-      .is('removed_at', null)
+      .is('deleted_at', null)
       .single()
 
     organizationId = membership?.organization_id || null
@@ -113,7 +113,7 @@ export async function getRequestOrganization(req: NextRequest): Promise<{
     .select('id')
     .eq('user_id', user.id)
     .eq('organization_id', organizationId)
-    .is('removed_at', null)
+    .is('deleted_at', null)
     .single()
 
   if (!hasAccess) {

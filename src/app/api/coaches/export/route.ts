@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       .from('organization_members')
       .select('email, role, joined_at, invited_at, created_at')
       .eq('organization_id', organizationId)
-      .is('removed_at', null)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
 
     if (fetchError) {

@@ -17,7 +17,7 @@ async function fetchOrganizationStats(organizationId: string): Promise<Organizat
     .from('organization_members')
     .select('id', { count: 'exact' })
     .eq('organization_id', organizationId)
-    .is('removed_at', null)
+    .is('deleted_at', null)
 
   if (memberError) {
     throw memberError
@@ -29,7 +29,7 @@ async function fetchOrganizationStats(organizationId: string): Promise<Organizat
     .select('id', { count: 'exact' })
     .eq('organization_id', organizationId)
     .eq('role', 'coach')
-    .is('removed_at', null)
+    .is('deleted_at', null)
 
   if (coachError) {
     throw coachError
@@ -44,7 +44,7 @@ async function fetchOrganizationStats(organizationId: string): Promise<Organizat
     .select('id', { count: 'exact' })
     .eq('organization_id', organizationId)
     .gte('joined_at', sevenDaysAgo.toISOString())
-    .is('removed_at', null)
+    .is('deleted_at', null)
 
   if (recentError) {
     throw recentError
@@ -57,7 +57,7 @@ async function fetchOrganizationStats(organizationId: string): Promise<Organizat
     .eq('organization_id', organizationId)
     .not('invited_at', 'is', null)
     .is('joined_at', null)
-    .is('removed_at', null)
+    .is('deleted_at', null)
 
   if (pendingError) {
     throw pendingError

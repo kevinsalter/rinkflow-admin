@@ -30,7 +30,7 @@ export function useCoaches({ searchTerm = '', page = 1, pageSize = 50 }: UseCoac
         .from('organization_members')
         .select('*', { count: 'exact' })
         .eq('organization_id', organization.id)
-        .is('removed_at', null)
+        .is('deleted_at', null)
         .order('joined_at', { ascending: true, nullsFirst: true })
         .order('created_at', { ascending: false })
 
@@ -158,7 +158,7 @@ export function useMemberCount() {
         .from('organization_members')
         .select('*', { count: 'exact', head: true })
         .eq('organization_id', organization.id)
-        .is('removed_at', null)
+        .is('deleted_at', null)
 
       return count || 0
     },

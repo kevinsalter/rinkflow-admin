@@ -45,7 +45,7 @@ async function fetchUserOrganization() {
     .from('organization_members')
     .select('organization_id, role')
     .eq('user_id', user.id)
-    .is('removed_at', null)
+    .is('deleted_at', null)
     .single()
 
   let membership = membershipByUserId
@@ -56,7 +56,7 @@ async function fetchUserOrganization() {
       .from('organization_members')
       .select('organization_id, role')
       .eq('email', user.email)
-      .is('removed_at', null)
+      .is('deleted_at', null)
       .single()
 
     if (!emailError && emailMembership) {
@@ -74,7 +74,7 @@ async function fetchUserOrganization() {
           })
           .eq('email', user.email)
           .eq('organization_id', emailMembership.organization_id)
-          .is('removed_at', null)
+          .is('deleted_at', null)
       } catch {
         // If update fails, we still have membership data, so continue
         console.log('Could not update membership record, but user can still access organization')

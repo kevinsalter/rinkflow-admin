@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
       .from('organization_members')
       .select('*', { count: 'exact', head: true })
       .eq('organization_id', organizationId)
-      .is('removed_at', null)
+      .is('deleted_at', null)
 
     const currentCount = currentMemberCount || 0
 
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
       .from('organization_members')
       .select('email')
       .eq('organization_id', organizationId)
-      .is('removed_at', null)
+      .is('deleted_at', null)
       .in('email', validEmails)
 
     const existingEmails = new Set(existingMembers?.map(m => m.email) || [])

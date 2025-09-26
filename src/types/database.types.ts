@@ -449,7 +449,7 @@ export type Database = {
           invited_by: string | null
           joined_at: string | null
           organization_id: string
-          removed_at: string | null
+          deleted_at: string | null
           role: string
           updated_at: string
           user_id: string | null
@@ -462,7 +462,7 @@ export type Database = {
           invited_by?: string | null
           joined_at?: string | null
           organization_id: string
-          removed_at?: string | null
+          deleted_at?: string | null
           role: string
           updated_at?: string
           user_id?: string | null
@@ -475,7 +475,7 @@ export type Database = {
           invited_by?: string | null
           joined_at?: string | null
           organization_id?: string
-          removed_at?: string | null
+          deleted_at?: string | null
           role?: string
           updated_at?: string
           user_id?: string | null
@@ -863,7 +863,7 @@ export type Database = {
           joined_at: string | null
           last_activity_at: string | null
           organization_id: string | null
-          removed_at: string | null
+          deleted_at: string | null
           role: string | null
           user_id: string | null
           username: string | null

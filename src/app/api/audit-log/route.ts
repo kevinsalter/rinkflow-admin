@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         updated_at,
         invited_at,
         joined_at,
-        removed_at,
+        deleted_at,
         invited_by
       `)
       .eq('organization_id', organizationId)
@@ -68,10 +68,10 @@ export async function GET(request: NextRequest) {
       const inviterEmail = member.invited_by ? inviters.get(member.invited_by) : null
 
       // Member was removed
-      if (member.removed_at) {
+      if (member.deleted_at) {
         events.push({
           id: `${member.id}-removed`,
-          timestamp: member.removed_at,
+          timestamp: member.deleted_at,
           action: 'Member Removed',
           details: `${member.email} was removed from the organization`,
           user_email: inviterEmail || 'System'

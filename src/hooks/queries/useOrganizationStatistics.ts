@@ -53,7 +53,7 @@ async function fetchOrganizationStatistics(organizationId: string): Promise<Orga
     .select('*', { count: 'exact', head: true })
     .eq('organization_id', organizationId)
     .not('user_id', 'is', null)
-    .is('removed_at', null)
+    .is('deleted_at', null)
 
   // Get onboarded members (members with user profiles)
   const { count: onboardedMembers } = await supabase
@@ -63,7 +63,7 @@ async function fetchOrganizationStatistics(organizationId: string): Promise<Orga
       user_profiles!inner(*)
     `, { count: 'exact', head: true })
     .eq('organization_id', organizationId)
-    .is('removed_at', null)
+    .is('deleted_at', null)
 
   // Get total drills
   const { count: totalDrills } = await supabase

@@ -15,7 +15,7 @@ export async function getOrganizationId(): Promise<string | null> {
     .from('organization_members')
     .select('organization_id')
     .eq('user_id', user.id)
-    .is('removed_at', null)
+    .is('deleted_at', null)
     .single()
 
   return membership?.organization_id || null
@@ -34,7 +34,7 @@ export async function getServerOrganizationId(): Promise<string | null> {
     .from('organization_members')
     .select('organization_id')
     .eq('user_id', user.id)
-    .is('removed_at', null)
+    .is('deleted_at', null)
     .single()
 
   return membership?.organization_id || null
@@ -54,7 +54,7 @@ export async function verifyOrganizationAccess(organizationId: string): Promise<
     .select('role')
     .eq('user_id', user.id)
     .eq('organization_id', organizationId)
-    .is('removed_at', null)
+    .is('deleted_at', null)
     .single()
 
   return !!membership
@@ -74,7 +74,7 @@ export async function verifyOrganizationAdmin(organizationId: string): Promise<b
     .select('role')
     .eq('user_id', user.id)
     .eq('organization_id', organizationId)
-    .is('removed_at', null)
+    .is('deleted_at', null)
     .single()
 
   return membership?.role === 'admin' || membership?.role === 'owner'
