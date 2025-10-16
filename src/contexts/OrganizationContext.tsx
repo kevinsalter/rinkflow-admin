@@ -35,20 +35,23 @@ async function fetchUserOrganization() {
 
   console.log('[OrganizationContext] Fetching user...')
 
-  // First get the current user
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  // Use getSession() instead of getUser() for client-side
+  // getSession() reads from local storage and is much faster
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
-  if (userError) {
-    console.error('[OrganizationContext] User error:', userError)
+  if (sessionError) {
+    console.error('[OrganizationContext] Session error:', sessionError)
     throw new Error('User not authenticated')
   }
 
-  if (!user) {
-    console.log('[OrganizationContext] No user found')
+  const user = session?.user
+
+  if (!session || !user) {
+    console.log('[OrganizationContext] No session found')
     throw new Error('User not authenticated')
   }
 
-  console.log('[OrganizationContext] User found, fetching membership for user:', user.id)
+  console.log('[OrganizationContext] Session found, fetching membership for user:', user.id)
 
   // Get user's organization membership - first try by user_id
   const { data: membershipByUserId, error: memberError } = await supabase
