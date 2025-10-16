@@ -19,40 +19,29 @@ interface CoachesData {
 
 export function useCoaches({ searchTerm = '', page = 1, pageSize = 50 }: UseCoachesOptions = {}) {
   const { organization } = useOrganization()
-  const supabase = createClient()
 
   return useQuery<CoachesData>({
     queryKey: ['coaches', organization?.id, page, searchTerm, pageSize],
     queryFn: async () => {
       if (!organization?.id) throw new Error('No organization')
 
-      let query = supabase
-        .from('organization_member_analytics')
-        .select('*', { count: 'exact' })
-        .eq('organization_id', organization.id)
-        .is('deleted_at', null)
-        .order('joined_at', { ascending: true, nullsFirst: true })
-        .order('invited_at', { ascending: false })
+      const params = new URLSearchParams({
+        organizationId: organization.id,
+        page: page.toString(),
+        pageSize: pageSize.toString(),
+      })
 
-      // Apply search filter
       if (searchTerm) {
-        query = query.or(`email.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`)
+        params.append('search', searchTerm)
       }
 
-      // Pagination
-      const from = (page - 1) * pageSize
-      const to = from + pageSize - 1
-      query = query.range(from, to)
+      const response = await fetch(`/api/coaches?${params.toString()}`)
 
-      const { data, error, count } = await query
-
-      if (error) throw error
-
-      return {
-        members: data || [],
-        totalCount: count || 0,
-        totalPages: Math.ceil((count || 0) / pageSize)
+      if (!response.ok) {
+        throw new Error('Failed to fetch coaches')
       }
+
+      return response.json()
     },
     enabled: !!organization?.id,
     placeholderData: (previousData) => previousData,
@@ -147,20 +136,20 @@ export function useBulkAddCoaches() {
 
 export function useMemberCount() {
   const { organization } = useOrganization()
-  const supabase = createClient()
 
   return useQuery({
     queryKey: ['memberCount', organization?.id],
     queryFn: async () => {
       if (!organization?.id) throw new Error('No organization')
-      
-      const { count } = await supabase
-        .from('organization_members')
-        .select('*', { count: 'exact', head: true })
-        .eq('organization_id', organization.id)
-        .is('deleted_at', null)
 
-      return count || 0
+      const response = await fetch(`/api/coaches?organizationId=${organization.id}&page=1&pageSize=1`)
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch member count')
+      }
+
+      const data = await response.json()
+      return data.totalCount || 0
     },
     enabled: !!organization?.id,
   })

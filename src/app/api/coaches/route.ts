@@ -120,19 +120,20 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Use regular client for database operations
-    const supabase = await createClient()
+    // Use service role client to bypass RLS for fast queries
+    const supabase = await createServiceRoleClient()
 
     let query = supabase
-      .from('organization_members')
+      .from('organization_member_analytics')
       .select('*', { count: 'exact' })
       .eq('organization_id', organizationId)
       .is('deleted_at', null)
-      .order('created_at', { ascending: false })
+      .order('joined_at', { ascending: true, nullsFirst: true })
+      .order('invited_at', { ascending: false })
 
     // Apply search filter
     if (searchTerm) {
-      query = query.ilike('email', `%${searchTerm}%`)
+      query = query.or(`email.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`)
     }
 
     // Pagination
