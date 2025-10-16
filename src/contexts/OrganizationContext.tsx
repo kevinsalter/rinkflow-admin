@@ -26,8 +26,15 @@ export function useOrganization() {
   return context
 }
 
+interface OrganizationData {
+  organization: Tables<'organizations'> | null
+  role: string | null
+  organizationId: string | null
+}
+
 interface OrganizationProviderProps {
   children: ReactNode
+  initialData?: OrganizationData | null
 }
 
 async function fetchUserOrganization(userId: string, userEmail?: string) {
@@ -132,7 +139,7 @@ async function fetchUserOrganization(userId: string, userEmail?: string) {
   }
 }
 
-export function OrganizationProvider({ children }: OrganizationProviderProps) {
+export function OrganizationProvider({ children, initialData }: OrganizationProviderProps) {
   const [userId, setUserId] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | undefined>(undefined)
   const supabase = createClient()
@@ -160,12 +167,21 @@ export function OrganizationProvider({ children }: OrganizationProviderProps) {
     isLoading: queryLoading,
     error,
     refetch,
-  } = useQuery({
+  } = useQuery<OrganizationData>({
     queryKey: ['organization', userId],
-    queryFn: () => fetchUserOrganization(userId!, userEmail),
-    enabled: !!userId,
+    queryFn: () => {
+      // Wrap in a timeout promise to prevent infinite hanging
+      return Promise.race([
+        fetchUserOrganization(userId!, userEmail),
+        new Promise<OrganizationData>((_, reject) =>
+          setTimeout(() => reject(new Error('Organization fetch timeout after 15 seconds')), 15000)
+        )
+      ])
+    },
+    enabled: !!userId && !initialData, // Don't fetch if we have SSR data
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
+    initialData: initialData || undefined, // Use SSR data as initial data
   })
 
   // Show loading state while we're fetching user or organization data
@@ -176,8 +192,8 @@ export function OrganizationProvider({ children }: OrganizationProviderProps) {
     organizationId: data?.organizationId || null,
     isLoading,
     error: error as Error | null,
-    refetch: () => { 
-      refetch() 
+    refetch: () => {
+      refetch()
     },
     userRole: data?.role || null,
     isAdmin: data?.role === 'admin' || data?.role === 'owner',
