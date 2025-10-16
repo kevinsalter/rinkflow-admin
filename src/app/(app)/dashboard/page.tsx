@@ -13,6 +13,8 @@ export default function Dashboard() {
   const { data: stats, isLoading: statsLoading } = useOrganizationStats()
   const { data: orgStats, isLoading: orgStatsLoading } = useOrganizationStatistics()
 
+  console.log('[Dashboard] Render state:', { isLoading, hasOrg: !!organization, statsLoading, orgStatsLoading })
+
   if (isLoading) {
     return (
       <div>
