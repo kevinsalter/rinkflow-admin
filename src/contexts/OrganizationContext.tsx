@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useMemo, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase-client'
 import type { Tables } from '@/types/database.types'
@@ -87,7 +87,7 @@ export function OrganizationProvider({ children }: OrganizationProviderProps) {
   // Show loading state while we're fetching user or organization data
   const isLoading = !userId || queryLoading
 
-  const value: OrganizationContextType = {
+  const value: OrganizationContextType = useMemo(() => ({
     organization: data?.organization || null,
     organizationId: data?.organizationId || null,
     isLoading,
@@ -98,7 +98,7 @@ export function OrganizationProvider({ children }: OrganizationProviderProps) {
     userRole: data?.role || null,
     isAdmin: data?.role === 'admin' || data?.role === 'owner',
     isMember: !!data?.role,
-  }
+  }), [data?.organization, data?.organizationId, data?.role, isLoading, error, refetch])
 
   console.log('[OrganizationContext] Context value:', {
     hasOrganization: !!data?.organization,
