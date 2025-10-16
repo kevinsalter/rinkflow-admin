@@ -25,6 +25,8 @@ export function useCoaches({ searchTerm = '', page = 1, pageSize = 50 }: UseCoac
     queryFn: async () => {
       if (!organization?.id) throw new Error('No organization')
 
+      console.log('[useCoaches] Fetching coaches via API for org:', organization.id)
+
       const params = new URLSearchParams({
         organizationId: organization.id,
         page: page.toString(),
@@ -35,13 +37,19 @@ export function useCoaches({ searchTerm = '', page = 1, pageSize = 50 }: UseCoac
         params.append('search', searchTerm)
       }
 
+      const start = Date.now()
       const response = await fetch(`/api/coaches?${params.toString()}`)
+      console.log(`[useCoaches] API request completed in ${Date.now() - start}ms, status: ${response.status}`)
 
       if (!response.ok) {
+        const errorText = await response.text()
+        console.error('[useCoaches] API error:', errorText)
         throw new Error('Failed to fetch coaches')
       }
 
-      return response.json()
+      const data = await response.json()
+      console.log('[useCoaches] Coaches data:', data)
+      return data
     },
     enabled: !!organization?.id,
     placeholderData: (previousData) => previousData,
