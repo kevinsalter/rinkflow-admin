@@ -46,6 +46,7 @@ async function fetchUserOrganization() {
   }
 
   const data = await response.json()
+  console.log('[OrganizationContext] API response data:', data)
   return data
 }
 
@@ -98,6 +99,15 @@ export function OrganizationProvider({ children }: OrganizationProviderProps) {
     isAdmin: data?.role === 'admin' || data?.role === 'owner',
     isMember: !!data?.role,
   }
+
+  console.log('[OrganizationContext] Context value:', {
+    hasOrganization: !!data?.organization,
+    organizationId: data?.organizationId,
+    isLoading,
+    userId,
+    queryLoading,
+    role: data?.role
+  })
 
   return (
     <OrganizationContext.Provider value={value}>
