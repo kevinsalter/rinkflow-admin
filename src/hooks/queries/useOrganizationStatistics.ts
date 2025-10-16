@@ -14,93 +14,13 @@ interface OrganizationStatistics {
 }
 
 async function fetchOrganizationStatistics(organizationId: string): Promise<OrganizationStatistics> {
-  const supabase = createClient()
+  const response = await fetch(`/api/stats/advanced?organizationId=${organizationId}`)
 
-  // Try to fetch from the materialized view first
-  const { data: mvData, error: mvError } = await supabase
-    .from('organization_statistics_mv')
-    .select('active_members,onboarded_members,total_drills,total_practice_plans,total_coaching_groups,drills_per_active_member,last_refreshed')
-    .eq('organization_id', organizationId)
-    .single() as { data: {
-      active_members: number
-      onboarded_members: number
-      total_drills: number
-      total_practice_plans: number
-      total_coaching_groups: number
-      drills_per_active_member: number
-      last_refreshed: string
-    } | null, error: Error | null }
-
-  // If materialized view has data, use it
-  if (!mvError && mvData) {
-    const activeMembers = mvData.active_members || 0
-    const totalPlans = mvData.total_practice_plans || 0
-    const avgPlans = activeMembers > 0 ? totalPlans / activeMembers : 0
-
-    return {
-      activeMembersCount: activeMembers,
-      onboardedMembersCount: mvData.onboarded_members || 0,
-      totalDrills: mvData.total_drills || 0,
-      totalPracticePlans: totalPlans,
-      totalCoachingGroups: mvData.total_coaching_groups || 0,
-      avgDrillsPerActiveMember: mvData.drills_per_active_member || 0,
-      avgPlansPerActiveMember: avgPlans,
-      lastRefreshed: mvData.last_refreshed,
-    }
+  if (!response.ok) {
+    throw new Error('Failed to fetch organization statistics')
   }
 
-  // Fallback: Query the data directly from tables
-  // Get active members (members who have user_id set, meaning they've logged in)
-  const { count: activeMembers } = await supabase
-    .from('organization_members')
-    .select('*', { count: 'exact', head: true })
-    .eq('organization_id', organizationId)
-    .not('user_id', 'is', null)
-    .is('deleted_at', null)
-
-  // Get onboarded members (members who have joined - have a user_id)
-  const { count: onboardedMembers } = await supabase
-    .from('organization_members')
-    .select('*', { count: 'exact', head: true })
-    .eq('organization_id', organizationId)
-    .is('deleted_at', null)
-    .not('user_id', 'is', null)
-
-  // Get total drills
-  const { count: totalDrills } = await supabase
-    .from('drills')
-    .select('*', { count: 'exact', head: true })
-    .eq('organization_id', organizationId)
-    .is('deleted_at', null)
-
-  // Get total practice plans
-  const { count: totalPlans } = await supabase
-    .from('practice_plans')
-    .select('*', { count: 'exact', head: true })
-    .eq('organization_id', organizationId)
-    .is('deleted_at', null)
-
-  // Get total coaching groups
-  const { count: totalGroups } = await supabase
-    .from('coaching_groups')
-    .select('*', { count: 'exact', head: true })
-    .eq('organization_id', organizationId)
-    .is('deleted_at', null)
-
-  const activeMemberCount = activeMembers || 0
-  const avgDrills = activeMemberCount > 0 ? (totalDrills || 0) / activeMemberCount : 0
-  const avgPlans = activeMemberCount > 0 ? (totalPlans || 0) / activeMemberCount : 0
-
-  return {
-    activeMembersCount: activeMemberCount,
-    onboardedMembersCount: onboardedMembers || 0,
-    totalDrills: totalDrills || 0,
-    totalPracticePlans: totalPlans || 0,
-    totalCoachingGroups: totalGroups || 0,
-    avgDrillsPerActiveMember: avgDrills,
-    avgPlansPerActiveMember: avgPlans,
-    lastRefreshed: new Date().toISOString(),
-  }
+  return response.json()
 }
 
 export function useOrganizationStatistics() {

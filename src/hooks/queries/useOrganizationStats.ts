@@ -10,65 +10,13 @@ interface OrganizationStats {
 }
 
 async function fetchOrganizationStats(organizationId: string): Promise<OrganizationStats> {
-  const supabase = createClient()
-  
-  // Get total member count (all non-removed members)
-  const { data: members, error: memberError } = await supabase
-    .from('organization_members')
-    .select('id', { count: 'exact' })
-    .eq('organization_id', organizationId)
-    .is('deleted_at', null)
+  const response = await fetch(`/api/stats?organizationId=${organizationId}`)
 
-  if (memberError) {
-    throw memberError
+  if (!response.ok) {
+    throw new Error('Failed to fetch organization stats')
   }
 
-  // Get coach count (members with role 'coach')
-  const { data: coaches, error: coachError } = await supabase
-    .from('organization_members')
-    .select('id', { count: 'exact' })
-    .eq('organization_id', organizationId)
-    .eq('role', 'coach')
-    .is('deleted_at', null)
-
-  if (coachError) {
-    throw coachError
-  }
-
-  // Get recently joined members (last 7 days)
-  const sevenDaysAgo = new Date()
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-  
-  const { data: recentMembers, error: recentError } = await supabase
-    .from('organization_members')
-    .select('id', { count: 'exact' })
-    .eq('organization_id', organizationId)
-    .gte('joined_at', sevenDaysAgo.toISOString())
-    .is('deleted_at', null)
-
-  if (recentError) {
-    throw recentError
-  }
-
-  // Get pending invites (invited but not joined)
-  const { data: pendingInvites, error: pendingError } = await supabase
-    .from('organization_members')
-    .select('id', { count: 'exact' })
-    .eq('organization_id', organizationId)
-    .not('invited_at', 'is', null)
-    .is('joined_at', null)
-    .is('deleted_at', null)
-
-  if (pendingError) {
-    throw pendingError
-  }
-
-  return {
-    memberCount: members?.length || 0,
-    coachCount: coaches?.length || 0,
-    recentlyJoined: recentMembers?.length || 0,
-    pendingInvites: pendingInvites?.length || 0,
-  }
+  return response.json()
 }
 
 export function useOrganizationStats() {
