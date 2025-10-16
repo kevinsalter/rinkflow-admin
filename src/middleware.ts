@@ -56,52 +56,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // For authenticated users accessing app routes, verify organization membership
-  if (user && isAppRoute) {
-    try {
-      // Add timeout to prevent middleware from hanging
-      const timeoutPromise = new Promise<null>((resolve) => {
-        setTimeout(() => {
-          console.error('Middleware: Organization membership query timeout')
-          resolve(null)
-        }, 3000) // 3 second timeout
-      })
-
-      const queryPromise = supabase
-        .from('organization_members')
-        .select('organization_id, role')
-        .eq('user_id', user.id)
-        .is('deleted_at', null)
-        .single()
-
-      // Race between query and timeout
-      const result = await Promise.race([queryPromise, timeoutPromise])
-
-      const membership = result && 'data' in result ? result.data : null
-
-      // If query timed out or no membership found, let the page load and handle it client-side
-      // This prevents the middleware from blocking the entire application
-      if (!membership) {
-        console.log('Middleware: No membership found or query timeout, allowing page to load')
-        // Allow the page to load - the OrganizationContext will handle showing appropriate UI
-        return supabaseResponse
-      }
-
-      // Check if user has admin/owner role for admin-only routes
-      const isAdminRoute = url.pathname.startsWith('/billing') ||
-                          url.pathname.startsWith('/audit-log') ||
-                          url.pathname.startsWith('/organization')
-
-      if (isAdminRoute && membership.role !== 'admin' && membership.role !== 'owner') {
-        url.pathname = '/access-denied'
-        return NextResponse.redirect(url)
-      }
-    } catch (error) {
-      console.error('Middleware error checking membership:', error)
-      // On error, allow page to load - client-side code will handle auth
-      return supabaseResponse
-    }
-  }
+  // Skip organization membership check in middleware - let client-side handle it
+  // The middleware was timing out due to RLS queries, blocking page loads
+  // Organization membership is now verified client-side via /api/organization
 
   return supabaseResponse
 }
