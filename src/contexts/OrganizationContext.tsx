@@ -37,7 +37,15 @@ async function fetchUserOrganization() {
 
   // Use getSession() instead of getUser() for client-side
   // getSession() reads from local storage and is much faster
+  const sessionStart = Date.now()
+  const sessionTimeout = setTimeout(() => {
+    console.error('[OrganizationContext] getSession() timeout after 5 seconds')
+  }, 5000)
+
   const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+  clearTimeout(sessionTimeout)
+  console.log(`[OrganizationContext] getSession() completed in ${Date.now() - sessionStart}ms`)
 
   if (sessionError) {
     console.error('[OrganizationContext] Session error:', sessionError)
@@ -79,12 +87,20 @@ async function fetchUserOrganization() {
 
   // If not found by user_id, try by email (for invited users who haven't joined yet)
   if ((memberError || !membership) && user.email) {
+    const emailQueryStart = Date.now()
+    const emailTimeout = setTimeout(() => {
+      console.error('[OrganizationContext] Email membership query timeout after 5 seconds')
+    }, 5000)
+
     const { data: emailMembership, error: emailError } = await supabase
       .from('organization_member_analytics')
       .select('organization_id, role')
       .eq('email', user.email)
       .is('deleted_at', null)
       .single()
+
+    clearTimeout(emailTimeout)
+    console.log(`[OrganizationContext] Email membership query completed in ${Date.now() - emailQueryStart}ms`)
 
     if (!emailError && emailMembership) {
       membership = emailMembership
@@ -117,11 +133,19 @@ async function fetchUserOrganization() {
   }
 
   // Get organization details
+  const orgQueryStart = Date.now()
+  const orgTimeout = setTimeout(() => {
+    console.error('[OrganizationContext] Organization query timeout after 5 seconds')
+  }, 5000)
+
   const { data: organization, error: orgError } = await supabase
     .from('organizations')
     .select('*')
     .eq('id', membership.organization_id)
     .single()
+
+  clearTimeout(orgTimeout)
+  console.log(`[OrganizationContext] Organization query completed in ${Date.now() - orgQueryStart}ms`)
 
   if (orgError || !organization) {
     throw new Error('Organization not found')
