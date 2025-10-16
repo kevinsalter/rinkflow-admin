@@ -53,30 +53,23 @@ async function fetchUserOrganization() {
 
   console.log('[OrganizationContext] Session found, fetching membership for user:', user.id)
 
-  // Add timeout to membership query
-  const membershipTimeout = new Promise<null>((resolve) => {
-    setTimeout(() => {
-      console.error('[OrganizationContext] Membership query timeout after 5 seconds')
-      resolve(null)
-    }, 5000)
-  })
+  // Query organization_member_analytics view which has better performance
+  // Add timeout monitoring to track if queries are taking too long
+  const membershipQueryStart = Date.now()
+  const timeoutWarning = setTimeout(() => {
+    console.error('[OrganizationContext] Membership query timeout after 5 seconds')
+  }, 5000)
 
-  // Get user's organization membership - first try by user_id
-  const membershipQuery = supabase
-    .from('organization_members')
+  const { data: membershipByUserId, error: memberError } = await supabase
+    .from('organization_member_analytics')
     .select('organization_id, role')
     .eq('user_id', user.id)
     .is('deleted_at', null)
     .single()
 
-  const result = await Promise.race([membershipQuery, membershipTimeout])
-
-  if (result === null) {
-    console.error('[OrganizationContext] Database query timed out - possible RLS or connection issue')
-    throw new Error('Database connection timeout - please contact support')
-  }
-
-  const { data: membershipByUserId, error: memberError } = result
+  clearTimeout(timeoutWarning)
+  const membershipQueryDuration = Date.now() - membershipQueryStart
+  console.log(`[OrganizationContext] Membership query completed in ${membershipQueryDuration}ms`)
 
   if (memberError) {
     console.log('[OrganizationContext] Membership query error:', memberError)
@@ -87,7 +80,7 @@ async function fetchUserOrganization() {
   // If not found by user_id, try by email (for invited users who haven't joined yet)
   if ((memberError || !membership) && user.email) {
     const { data: emailMembership, error: emailError } = await supabase
-      .from('organization_members')
+      .from('organization_member_analytics')
       .select('organization_id, role')
       .eq('email', user.email)
       .is('deleted_at', null)
@@ -99,24 +92,26 @@ async function fetchUserOrganization() {
       // Update the membership record with user_id and joined_at if found by email
       // Note: This would need service role permissions, but for now we'll skip the update
       // The user will still be able to access the organization based on their email match
-      try {
-        await supabase
-          .from('organization_members')
-          .update({ 
-            user_id: user.id,
-            joined_at: new Date().toISOString()
-          })
-          .eq('email', user.email)
-          .eq('organization_id', emailMembership.organization_id)
-          .is('deleted_at', null)
-      } catch {
-        // If update fails, we still have membership data, so continue
-        console.log('Could not update membership record, but user can still access organization')
+      if (emailMembership.organization_id) {
+        try {
+          await supabase
+            .from('organization_members')
+            .update({
+              user_id: user.id,
+              joined_at: new Date().toISOString()
+            })
+            .eq('email', user.email)
+            .eq('organization_id', emailMembership.organization_id)
+            .is('deleted_at', null)
+        } catch {
+          // If update fails, we still have membership data, so continue
+          console.log('Could not update membership record, but user can still access organization')
+        }
       }
     }
   }
 
-  if (!membership) {
+  if (!membership || !membership.organization_id) {
     // User might not be part of any organization yet
     return { organization: null, role: null, organizationId: null }
   }
