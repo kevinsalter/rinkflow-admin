@@ -4,6 +4,16 @@ import { createClient, createServiceRoleClient } from '@/lib/supabase-server'
 export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
 
+interface MaterializedViewData {
+  active_members?: number
+  onboarded_members?: number
+  total_drills?: number
+  total_practice_plans?: number
+  total_coaching_groups?: number
+  drills_per_active_member?: number
+  last_refreshed?: string
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -32,25 +42,27 @@ export async function GET(request: NextRequest) {
     // Try to fetch from the materialized view first
     const { data: mvData, error: mvError } = await supabase
       .from('organization_statistics_mv')
-      .select('active_members,onboarded_members,total_drills,total_practice_plans,total_coaching_groups,drills_per_active_member,last_refreshed')
+      .select('*')
       .eq('organization_id', organizationId)
       .maybeSingle()
 
     // If materialized view has data, use it
     if (!mvError && mvData) {
-      const activeMembers = mvData.active_members || 0
-      const totalPlans = mvData.total_practice_plans || 0
+      const data = mvData as unknown as MaterializedViewData
+      const activeMembers = data.active_members || 0
+      const totalPlans = data.total_practice_plans || 0
       const avgPlans = activeMembers > 0 ? totalPlans / activeMembers : 0
+      const avgDrills = data.drills_per_active_member || 0
 
       return NextResponse.json({
         activeMembersCount: activeMembers,
-        onboardedMembersCount: mvData.onboarded_members || 0,
-        totalDrills: mvData.total_drills || 0,
+        onboardedMembersCount: data.onboarded_members || 0,
+        totalDrills: data.total_drills || 0,
         totalPracticePlans: totalPlans,
-        totalCoachingGroups: mvData.total_coaching_groups || 0,
-        avgDrillsPerActiveMember: mvData.drills_per_active_member || 0,
+        totalCoachingGroups: data.total_coaching_groups || 0,
+        avgDrillsPerActiveMember: avgDrills,
         avgPlansPerActiveMember: avgPlans,
-        lastRefreshed: mvData.last_refreshed,
+        lastRefreshed: data.last_refreshed || null,
       })
     }
 
