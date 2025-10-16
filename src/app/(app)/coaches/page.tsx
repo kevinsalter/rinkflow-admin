@@ -16,7 +16,7 @@ import { Field, Label } from '@/components/fieldset'
 import { ErrorMessage } from '@/components/fieldset'
 import { InfoTooltip } from '@/components/info-tooltip'
 
-type OrganizationMember = Database['public']['Tables']['organization_members']['Row']
+type OrganizationMember = Database['public']['Views']['organization_member_analytics']['Row']
 
 export default function CoachesPage() {
   const { organization } = useOrganization()
@@ -435,7 +435,7 @@ export default function CoachesPage() {
   }
 
   const handleRemoveCoach = async () => {
-    if (!memberToRemove) return
+    if (!memberToRemove || !memberToRemove.id) return
 
     try {
       await removeCoachMutation.mutateAsync(memberToRemove.id)
@@ -619,8 +619,8 @@ export default function CoachesPage() {
                         {member.email || 'No email'}
                       </TableCell>
                       <TableCell>
-                        <Badge color={getRoleBadgeColor(member.role)}>
-                          {member.role}
+                        <Badge color={getRoleBadgeColor(member.role || 'member')}>
+                          {member.role || 'member'}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -632,7 +632,7 @@ export default function CoachesPage() {
                         {formatDate(member.joined_at || member.invited_at)}
                       </TableCell>
                       <TableCell className="text-right">
-                        {member.role === 'owner' ? (
+                        {(member.role || '') === 'owner' ? (
                           <InfoTooltip content="Owners cannot be removed" position="left">
                             <Button
                               plain

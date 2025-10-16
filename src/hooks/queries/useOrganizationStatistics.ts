@@ -15,33 +15,36 @@ interface OrganizationStatistics {
 
 async function fetchOrganizationStatistics(organizationId: string): Promise<OrganizationStatistics> {
   const supabase = createClient()
-  
+
   // Try to fetch from the materialized view first
   const { data: mvData, error: mvError } = await supabase
     .from('organization_statistics_mv')
-    .select(`
-      active_members,
-      onboarded_members,
-      total_drills,
-      total_practice_plans,
-      total_coaching_groups,
-      avg_drills_per_active_member,
-      avg_plans_per_active_member,
-      last_refreshed
-    `)
+    .select('active_members,onboarded_members,total_drills,total_practice_plans,total_coaching_groups,drills_per_active_member,last_refreshed')
     .eq('organization_id', organizationId)
-    .single()
+    .single() as { data: {
+      active_members: number
+      onboarded_members: number
+      total_drills: number
+      total_practice_plans: number
+      total_coaching_groups: number
+      drills_per_active_member: number
+      last_refreshed: string
+    } | null, error: Error | null }
 
   // If materialized view has data, use it
   if (!mvError && mvData) {
+    const activeMembers = mvData.active_members || 0
+    const totalPlans = mvData.total_practice_plans || 0
+    const avgPlans = activeMembers > 0 ? totalPlans / activeMembers : 0
+
     return {
-      activeMembersCount: mvData.active_members || 0,
+      activeMembersCount: activeMembers,
       onboardedMembersCount: mvData.onboarded_members || 0,
       totalDrills: mvData.total_drills || 0,
-      totalPracticePlans: mvData.total_practice_plans || 0,
+      totalPracticePlans: totalPlans,
       totalCoachingGroups: mvData.total_coaching_groups || 0,
-      avgDrillsPerActiveMember: mvData.avg_drills_per_active_member || 0,
-      avgPlansPerActiveMember: mvData.avg_plans_per_active_member || 0,
+      avgDrillsPerActiveMember: mvData.drills_per_active_member || 0,
+      avgPlansPerActiveMember: avgPlans,
       lastRefreshed: mvData.last_refreshed,
     }
   }
@@ -55,15 +58,13 @@ async function fetchOrganizationStatistics(organizationId: string): Promise<Orga
     .not('user_id', 'is', null)
     .is('deleted_at', null)
 
-  // Get onboarded members (members with user profiles)
+  // Get onboarded members (members who have joined - have a user_id)
   const { count: onboardedMembers } = await supabase
     .from('organization_members')
-    .select(`
-      *,
-      user_profiles!inner(*)
-    `, { count: 'exact', head: true })
+    .select('*', { count: 'exact', head: true })
     .eq('organization_id', organizationId)
     .is('deleted_at', null)
+    .not('user_id', 'is', null)
 
   // Get total drills
   const { count: totalDrills } = await supabase

@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase-client'
 import { useOrganization } from '@/contexts/OrganizationContext'
 import { Database } from '@/types/database.types'
 
-type OrganizationMember = Database['public']['Tables']['organization_members']['Row']
+type OrganizationMember = Database['public']['Views']['organization_member_analytics']['Row']
 
 interface UseCoachesOptions {
   searchTerm?: string
@@ -25,18 +25,18 @@ export function useCoaches({ searchTerm = '', page = 1, pageSize = 50 }: UseCoac
     queryKey: ['coaches', organization?.id, page, searchTerm, pageSize],
     queryFn: async () => {
       if (!organization?.id) throw new Error('No organization')
-      
+
       let query = supabase
-        .from('organization_members')
+        .from('organization_member_analytics')
         .select('*', { count: 'exact' })
         .eq('organization_id', organization.id)
         .is('deleted_at', null)
         .order('joined_at', { ascending: true, nullsFirst: true })
-        .order('created_at', { ascending: false })
+        .order('invited_at', { ascending: false })
 
       // Apply search filter
       if (searchTerm) {
-        query = query.or(`email.ilike.%${searchTerm}%`)
+        query = query.or(`email.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`)
       }
 
       // Pagination
