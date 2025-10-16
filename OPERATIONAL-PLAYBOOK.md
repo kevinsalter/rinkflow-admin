@@ -73,14 +73,20 @@ const { data, error } = await supabase.auth.resetPasswordForEmail(
 INSERT INTO organization_members (
   user_id,
   organization_id,
+  email,
   role,
+  joined_at,
   created_at
-) VALUES (
+)
+SELECT
   '<user_id_from_step_2>',
   '<org_id_from_step_1>',
+  email,
   'admin',
+  NOW(),
   NOW()
-);
+FROM user_profiles
+WHERE id = '<user_id_from_step_2>';
 ```
 
 5. **Send welcome email to admin (manual or automated):**
