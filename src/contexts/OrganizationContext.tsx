@@ -32,13 +32,23 @@ interface OrganizationProviderProps {
 
 async function fetchUserOrganization() {
   const supabase = createClient()
-  
+
+  console.log('[OrganizationContext] Fetching user...')
+
   // First get the current user
   const { data: { user }, error: userError } = await supabase.auth.getUser()
-  
-  if (userError || !user) {
+
+  if (userError) {
+    console.error('[OrganizationContext] User error:', userError)
     throw new Error('User not authenticated')
   }
+
+  if (!user) {
+    console.log('[OrganizationContext] No user found')
+    throw new Error('User not authenticated')
+  }
+
+  console.log('[OrganizationContext] User found, fetching membership for user:', user.id)
 
   // Get user's organization membership - first try by user_id
   const { data: membershipByUserId, error: memberError } = await supabase
@@ -47,6 +57,10 @@ async function fetchUserOrganization() {
     .eq('user_id', user.id)
     .is('deleted_at', null)
     .single()
+
+  if (memberError) {
+    console.log('[OrganizationContext] Membership query error:', memberError)
+  }
 
   let membership = membershipByUserId
 

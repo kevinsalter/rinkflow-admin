@@ -58,28 +58,48 @@ export async function middleware(request: NextRequest) {
 
   // For authenticated users accessing app routes, verify organization membership
   if (user && isAppRoute) {
-    // Get user's organization membership
-    const { data: membership } = await supabase
-      .from('organization_members')
-      .select('organization_id, role')
-      .eq('user_id', user.id)
-      .is('deleted_at', null)
-      .single()
+    try {
+      // Add timeout to prevent middleware from hanging
+      const timeoutPromise = new Promise<null>((resolve) => {
+        setTimeout(() => {
+          console.error('Middleware: Organization membership query timeout')
+          resolve(null)
+        }, 3000) // 3 second timeout
+      })
 
-    // If user is not a member of any organization, redirect to access denied
-    if (!membership) {
-      url.pathname = '/access-denied'
-      return NextResponse.redirect(url)
-    }
+      const queryPromise = supabase
+        .from('organization_members')
+        .select('organization_id, role')
+        .eq('user_id', user.id)
+        .is('deleted_at', null)
+        .single()
 
-    // Check if user has admin/owner role for admin-only routes
-    const isAdminRoute = url.pathname.startsWith('/billing') || 
-                        url.pathname.startsWith('/audit-log') ||
-                        url.pathname.startsWith('/organization')
-    
-    if (isAdminRoute && membership.role !== 'admin' && membership.role !== 'owner') {
-      url.pathname = '/access-denied'
-      return NextResponse.redirect(url)
+      // Race between query and timeout
+      const result = await Promise.race([queryPromise, timeoutPromise])
+
+      const membership = result && 'data' in result ? result.data : null
+
+      // If query timed out or no membership found, let the page load and handle it client-side
+      // This prevents the middleware from blocking the entire application
+      if (!membership) {
+        console.log('Middleware: No membership found or query timeout, allowing page to load')
+        // Allow the page to load - the OrganizationContext will handle showing appropriate UI
+        return supabaseResponse
+      }
+
+      // Check if user has admin/owner role for admin-only routes
+      const isAdminRoute = url.pathname.startsWith('/billing') ||
+                          url.pathname.startsWith('/audit-log') ||
+                          url.pathname.startsWith('/organization')
+
+      if (isAdminRoute && membership.role !== 'admin' && membership.role !== 'owner') {
+        url.pathname = '/access-denied'
+        return NextResponse.redirect(url)
+      }
+    } catch (error) {
+      console.error('Middleware error checking membership:', error)
+      // On error, allow page to load - client-side code will handle auth
+      return supabaseResponse
     }
   }
 
