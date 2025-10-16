@@ -30,36 +30,10 @@ interface OrganizationProviderProps {
   children: ReactNode
 }
 
-async function fetchUserOrganization() {
+async function fetchUserOrganization(userId: string, userEmail?: string) {
   const supabase = createClient()
 
-  console.log('[OrganizationContext] Fetching user...')
-
-  // Use getSession() instead of getUser() for client-side
-  // getSession() reads from local storage and is much faster
-  const sessionStart = Date.now()
-  const sessionTimeout = setTimeout(() => {
-    console.error('[OrganizationContext] getSession() timeout after 5 seconds')
-  }, 5000)
-
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-
-  clearTimeout(sessionTimeout)
-  console.log(`[OrganizationContext] getSession() completed in ${Date.now() - sessionStart}ms`)
-
-  if (sessionError) {
-    console.error('[OrganizationContext] Session error:', sessionError)
-    throw new Error('User not authenticated')
-  }
-
-  const user = session?.user
-
-  if (!session || !user) {
-    console.log('[OrganizationContext] No session found')
-    throw new Error('User not authenticated')
-  }
-
-  console.log('[OrganizationContext] Session found, fetching membership for user:', user.id)
+  console.log('[OrganizationContext] Fetching organization for user:', userId)
 
   // Query organization_member_analytics view which has better performance
   // Add timeout monitoring to track if queries are taking too long
@@ -71,7 +45,7 @@ async function fetchUserOrganization() {
   const { data: membershipByUserId, error: memberError } = await supabase
     .from('organization_member_analytics')
     .select('organization_id, role')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .is('deleted_at', null)
     .single()
 
@@ -86,7 +60,7 @@ async function fetchUserOrganization() {
   let membership = membershipByUserId
 
   // If not found by user_id, try by email (for invited users who haven't joined yet)
-  if ((memberError || !membership) && user.email) {
+  if ((memberError || !membership) && userEmail) {
     const emailQueryStart = Date.now()
     const emailTimeout = setTimeout(() => {
       console.error('[OrganizationContext] Email membership query timeout after 5 seconds')
@@ -95,7 +69,7 @@ async function fetchUserOrganization() {
     const { data: emailMembership, error: emailError } = await supabase
       .from('organization_member_analytics')
       .select('organization_id, role')
-      .eq('email', user.email)
+      .eq('email', userEmail)
       .is('deleted_at', null)
       .single()
 
@@ -104,7 +78,7 @@ async function fetchUserOrganization() {
 
     if (!emailError && emailMembership) {
       membership = emailMembership
-      
+
       // Update the membership record with user_id and joined_at if found by email
       // Note: This would need service role permissions, but for now we'll skip the update
       // The user will still be able to access the organization based on their email match
@@ -113,10 +87,10 @@ async function fetchUserOrganization() {
           await supabase
             .from('organization_members')
             .update({
-              user_id: user.id,
+              user_id: userId,
               joined_at: new Date().toISOString()
             })
-            .eq('email', user.email)
+            .eq('email', userEmail)
             .eq('organization_id', emailMembership.organization_id)
             .is('deleted_at', null)
         } catch {
@@ -160,6 +134,7 @@ async function fetchUserOrganization() {
 
 export function OrganizationProvider({ children }: OrganizationProviderProps) {
   const [userId, setUserId] = useState<string | null>(null)
+  const [userEmail, setUserEmail] = useState<string | undefined>(undefined)
   const supabase = createClient()
 
   // Get initial user and listen for auth changes
@@ -167,12 +142,14 @@ export function OrganizationProvider({ children }: OrganizationProviderProps) {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUserId(user?.id || null)
+      setUserEmail(user?.email)
     }
 
     getUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserId(session?.user?.id || null)
+      setUserEmail(session?.user?.email)
     })
 
     return () => subscription.unsubscribe()
@@ -185,7 +162,7 @@ export function OrganizationProvider({ children }: OrganizationProviderProps) {
     refetch,
   } = useQuery({
     queryKey: ['organization', userId],
-    queryFn: fetchUserOrganization,
+    queryFn: () => fetchUserOrganization(userId!, userEmail),
     enabled: !!userId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
