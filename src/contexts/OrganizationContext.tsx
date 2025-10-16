@@ -53,13 +53,30 @@ async function fetchUserOrganization() {
 
   console.log('[OrganizationContext] Session found, fetching membership for user:', user.id)
 
+  // Add timeout to membership query
+  const membershipTimeout = new Promise<null>((resolve) => {
+    setTimeout(() => {
+      console.error('[OrganizationContext] Membership query timeout after 5 seconds')
+      resolve(null)
+    }, 5000)
+  })
+
   // Get user's organization membership - first try by user_id
-  const { data: membershipByUserId, error: memberError } = await supabase
+  const membershipQuery = supabase
     .from('organization_members')
     .select('organization_id, role')
     .eq('user_id', user.id)
     .is('deleted_at', null)
     .single()
+
+  const result = await Promise.race([membershipQuery, membershipTimeout])
+
+  if (result === null) {
+    console.error('[OrganizationContext] Database query timed out - possible RLS or connection issue')
+    throw new Error('Database connection timeout - please contact support')
+  }
+
+  const { data: membershipByUserId, error: memberError } = result
 
   if (memberError) {
     console.log('[OrganizationContext] Membership query error:', memberError)
