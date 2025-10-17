@@ -53,8 +53,6 @@ export default function CoachesPage() {
     pageSize: itemsPerPage
   })
 
-  console.log('[CoachesPage] useCoaches state:', { hasData: !!data, isLoading, hasError: !!error, hasOrg: !!organization })
-
   // Add coach mutation
   const addCoachMutation = useAddCoach()
   

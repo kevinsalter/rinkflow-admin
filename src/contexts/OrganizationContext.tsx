@@ -31,22 +31,16 @@ interface OrganizationProviderProps {
 }
 
 async function fetchUserOrganization() {
-  console.log('[OrganizationContext] Fetching organization via API')
-
-  const start = Date.now()
   const response = await fetch('/api/organization', {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   })
-
-  console.log(`[OrganizationContext] API request completed in ${Date.now() - start}ms`)
 
   if (!response.ok) {
     throw new Error(`Failed to fetch organization: ${response.status}`)
   }
 
   const data = await response.json()
-  console.log('[OrganizationContext] API response data:', data)
   return data
 }
 
@@ -99,15 +93,6 @@ export function OrganizationProvider({ children }: OrganizationProviderProps) {
     isAdmin: data?.role === 'admin' || data?.role === 'owner',
     isMember: !!data?.role,
   }), [data?.organization, data?.organizationId, data?.role, isLoading, error, refetch])
-
-  console.log('[OrganizationContext] Context value:', {
-    hasOrganization: !!data?.organization,
-    organizationId: data?.organizationId,
-    isLoading,
-    userId,
-    queryLoading,
-    role: data?.role
-  })
 
   return (
     <OrganizationContext.Provider value={value}>
